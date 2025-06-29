@@ -1,0 +1,15 @@
+[
+ {
+  "directory": "C:/Users/harg/Desktop/dev/virtual-uds-server",
+  "arguments": [
+   "g++",
+   "-c",
+   "src/uds-server.cpp",
+   "-o",
+   "bin/uds-server.o",
+   "-I",
+   "inc"
+  ],
+  "file": "src/uds-server.cpp"
+ }
+]

@@ -1,5 +1,6 @@
 // project headers
 // #include "can.h"
+#include "can.h"
 #include "logger.h"
 
 // cpp headers
@@ -15,6 +16,7 @@ int main(int argc, char **argv)
 {
   std::cout << WELCOME_MESSAGE << std::endl;
   std::cout << INFO << "Please enter your command...";
+  can_stream cs = can_stream("vcan0", can_stream::SOCKET_TYPE_RAW);
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }

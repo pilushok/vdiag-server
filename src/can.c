@@ -31,6 +31,7 @@ enum can_error can_socket_open(const char *ifname,
     return CAN_ERROR_MALLOC;
   }
   
+  // TODO: here we can put support of other tp
   psock_state->socket_fd = socket(PF_CAN, SOCK_DGRAM, CAN_ISOTP);
   if (psock_state->socket_fd < 0) {
     perror("connect");
@@ -50,13 +51,20 @@ enum can_error can_socket_open(const char *ifname,
     psock_state = NULL;
     return CAN_ERROR_BIND; 
   }
+  printf("Can connection established interface: %s, tx: %X, rx: %X\n", ifname, utx, urx);
 
   return CAN_NO_ERROR;
 }
 
 
-void can_socket_close(int32_t sockfd)
+void can_socket_close(struct socket_state **ppsock_state)
 {
+  if (!ppsock_state || !*ppsock_state)
+    return;
+
+  close((*ppsock_state)->socket_fd);
+  free(*ppsock_state);
+  *ppsock_state = NULL;
 }
 
 
@@ -71,38 +79,3 @@ enum can_error can_socket_write(int32_t sockfd, const struct can_frame *frame)
   return CAN_NO_ERROR;
 }
 
-// class can_stream {
-//  public:
-//   using SOCKET_DESCRIPTOR = int32_t;
-//   enum socket_type {
-//     SOCKET_TYPE_RAW = CAN_RAW,
-//     SOCKER_TYPE_ISOTP = CAN_ISOTP,
-//   };
-//
-//   can_stream(std::string interface_name, socket_type st) : cdev{ interface_name }
-//   {
-//     socket_fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-//     if (socket_fd < 0) {
-//       std::cerr << "errno: " << errno << std::endl;
-//       throw std::runtime_error("Failed to create socket");
-//     }
-//
-//     memset(&ifr, 0, sizeof(ifr));
-//     strncpy(ifr.ifr_name, cdev.c_str(), sizeof(ifr.ifr_name) - 1);
-//     ioctl(socket_fd, SIOCGIFINDEX, &ifr);
-//
-//     memset(&addr, 0, sizeof(addr));
-//     addr.can_family = AF_CAN;
-//     addr.can_ifindex = ifr.ifr_ifindex;
-//
-//     if (bind(socket_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-//       throw std::runtime_error("Failed to bind to address");
-//     }
-//   }
-//
-//  private:
-//   SOCKET_DESCRIPTOR socket_fd;
-//   struct ifreq ifr;
-//   struct sockaddr_can addr;
-//   std::string cdev = "vcan0";
-// };

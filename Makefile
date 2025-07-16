@@ -1,7 +1,7 @@
 BINDIR=bin
 INCDIR=inc
 SRCDIR=src
-OBJS=$(BINDIR)/uds-server.o $(BINDIR)/can.o
+OBJS=$(BINDIR)/uds-server.o $(BINDIR)/can.o $(BINDIR)/uds.o
 CXX=g++
 CC=clang
 

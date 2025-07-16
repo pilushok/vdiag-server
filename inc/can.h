@@ -28,7 +28,7 @@ enum can_error can_socket_open(const char *ifname,
     const uint32_t utx,
     const uint32_t urx);
 
-void can_socket_close(int32_t sockfd);
+void can_socket_close(struct socket_state **ppsock_state);
 
 enum can_error can_socket_read(int32_t sockfd, struct can_frame *frame);
 

@@ -1,49 +1,36 @@
-#include <cerrno>
-#include <cstdint>
-#include <iostream>
-#include <stdexcept>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
 
+#include <stdint.h>
 #include "linux/can.h"
 #include "linux/can/raw.h"
 #include "net/if.h"
 #include "string.h"
 #include "sys/socket.h"
 
-class can_stream {
- public:
-  using SOCKET_DESCRIPTOR = int32_t;
-  enum socket_type {
-    SOCKET_TYPE_RAW = CAN_RAW,
-    SOCKER_TYPE_ISOTP = CAN_ISOTP,
-  };
+#define MAX_SLOTS 2
 
-  can_stream(std::string interface_name, socket_type st) : cdev{ interface_name }
-  {
-    socket_fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if (socket_fd < 0) {
-      std::cerr << "errno: " << errno << std::endl;
-      throw std::runtime_error("Failed to create socket");
-    }
-
-    memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_name, cdev.c_str(), sizeof(ifr.ifr_name) - 1);
-    ioctl(socket_fd, SIOCGIFINDEX, &ifr);
-
-    memset(&addr, 0, sizeof(addr));
-    addr.can_family = AF_CAN;
-    addr.can_ifindex = ifr.ifr_ifindex;
-
-    if (bind(socket_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-      throw std::runtime_error("Failed to bind to address");
-    }
-  }
-
- private:
-  SOCKET_DESCRIPTOR socket_fd;
-  struct ifreq ifr;
-  struct sockaddr_can addr;
-  std::string cdev = "vcan0";
+enum can_error {
+  CAN_NO_ERROR = 0,
+  CAN_ERROR_COMMON,
+  CAN_ERROR_SOCKET_INIT,
+  CAN_ERROR_MALLOC,
+  CAN_ERROR_CONNECT,
+  CAN_ERROR_BIND,
 };
+
+struct socket_state {
+  int32_t socket_fd;
+};
+
+enum can_error can_socket_open(const char *ifname,
+    const uint32_t utx,
+    const uint32_t urx);
+
+void can_socket_close(int32_t sockfd);
+
+enum can_error can_socket_read(int32_t sockfd, struct can_frame *frame);
+
+enum can_error can_socket_write(int32_t sockfd, const struct can_frame *frame);
+

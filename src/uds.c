@@ -2,9 +2,9 @@
 
 #include "uds.h"
 
-static int handle_diagnostic_session_control(const uint8_t* request, uint8_t* response,
-                                             UDSContext* ctx)
-{
+static int handle_diagnostic_session_control(const uint8_t *request,
+                                             uint8_t *response,
+                                             UDSContext *ctx) {
   uint8_t session_type = request[1];
   ctx->session_type = session_type;
 
@@ -13,8 +13,8 @@ static int handle_diagnostic_session_control(const uint8_t* request, uint8_t* re
   return 2;
 }
 
-static int handle_read_data_by_id(const uint8_t* request, uint8_t* response, UDSContext* ctx)
-{
+static int handle_read_data_by_id(const uint8_t *request, uint8_t *response,
+                                  UDSContext *ctx) {
   uint16_t data_id = (request[1] << 8) | request[2];
 
   response[0] = 0x62;
@@ -31,9 +31,9 @@ static int handle_read_data_by_id(const uint8_t* request, uint8_t* response, UDS
   }
 }
 
-int handle_uds_request(const uint8_t* request, size_t request_len, uint8_t* response,
-                       size_t max_response_len, UDSContext* context)
-{
+int handle_uds_request(const uint8_t *request, size_t request_len,
+                       uint8_t *response, size_t max_response_len,
+                       UDSContext *context) {
   if (request_len < 1 || !response || max_response_len < 3) {
     return -1;
   }

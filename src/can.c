@@ -15,7 +15,6 @@ struct socket_state *can_socket_open(const char *ifname,
     uint8_t usockf = 0;
     int32_t idx = 0;
     struct socket_state *psock_state = NULL;
-    struct sockaddr_can addr;
 
     psock_state = (struct socket_state *) calloc(1, sizeof(struct socket_state));
     if (NULL == psock_state) {
@@ -31,15 +30,16 @@ struct socket_state *can_socket_open(const char *ifname,
         *perr = CAN_ERROR_SOCKET_INIT;
         goto err;
     }
+    psock_state->proto = CAN_ISOTP;
     usockf = 1;
 
-    memset(&addr, 0, sizeof(addr));
-    addr.can_family = AF_CAN;
-    addr.can_ifindex = if_nametoindex(ifname);
-    addr.can_addr.tp.tx_id = utx;
-    addr.can_addr.tp.rx_id = urx;
+    memset(&psock_state->addr, 0, sizeof(psock_state->addr));
+    psock_state->addr.can_family = AF_CAN;
+    psock_state->addr.can_ifindex = if_nametoindex(ifname);
+    psock_state->addr.can_addr.tp.tx_id = utx;
+    psock_state->addr.can_addr.tp.rx_id = urx;
 
-    if (bind(psock_state->socket_fd, (struct sockaddr *) &addr, sizeof(addr))) {
+    if (bind(psock_state->socket_fd, (struct sockaddr *) &psock_state->addr, sizeof(psock_state->addr))) {
         perror("bind");
         *perr = CAN_ERROR_BIND;
         goto err;

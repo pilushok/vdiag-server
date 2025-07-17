@@ -20,8 +20,11 @@ enum can_error {
   CAN_ERROR_BIND,
 };
 
+
 struct socket_state {
   int32_t socket_fd;
+  int32_t proto;
+  struct sockaddr_can addr;
 };
 
 struct socket_state *can_socket_open(const char *ifname,

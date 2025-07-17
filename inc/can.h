@@ -24,13 +24,14 @@ struct socket_state {
   int32_t socket_fd;
 };
 
-enum can_error can_socket_open(const char *ifname,
+struct socket_state *can_socket_open(const char *ifname,
     const uint32_t utx,
-    const uint32_t urx);
+    const uint32_t urx,
+    enum can_error *perr);
 
 void can_socket_close(struct socket_state **ppsock_state);
 
-enum can_error can_socket_read(int32_t sockfd, struct can_frame *frame);
+enum can_error can_socket_read(struct socket_state *psock_state, struct can_frame *frame);
 
-enum can_error can_socket_write(int32_t sockfd, const struct can_frame *frame);
+enum can_error can_socket_write(struct socket_state *psock_state, const struct can_frame *frame);
 

@@ -141,5 +141,46 @@ enum can_error can_socket_read(struct socket_state *psock_state,
 
 enum can_error can_socket_write(struct socket_state *psock_state,
                                 const struct can_message *pmsg) {
+    uint32_t usz_io = 0;
+    int32_t irc = -1;
+    fd_set write_fds;
+    if (!psock_state || !pmsg || !pmsg->usz_io) {
+        perror("invalid param");
+        return CAN_ERROR_INVALID_PARAM;
+    }
+
+    if (psock_state->sockfd <= 0) {
+        perror("socket is closed");
+        return CAN_ERROR_SOCKET_CLOSED;
+    }
+
+    // TODO: understand how to validate message length
+    FD_ZERO(&write_fds);
+    FD_SET(psock_state->sockfd, &write_fds);
+
+    struct timeval tv = {.tv_sec = psock_state->uioto / 1000,
+                         .tv_usec = (psock_state->uioto % 1000) * 1000};
+
+    irc = select(psock_state->sockfd + 1, NULL, &write_fds, NULL, &tv);
+    if (irc == 0) {
+        perror("select timeout");
+        return CAN_ERROR_TIMEOUT;
+    } else if (irc < 0) {
+        perror("select");
+        return CAN_ERROR_WRITE;
+    }
+
+    usz_io = write(psock_state->sockfd, pmsg->pdata, pmsg->usz_io);
+
+    if (usz_io < 0) {
+        perror("write");
+        return CAN_ERROR_WRITE;
+    } else if (usz_io != pmsg->usz_io) {
+        perror("incomplete write");
+        return CAN_ERROR_WRITE;
+    }
+
+    printf("Bytes successfully sent to socket hex: ");
+    print_hex(pmsg->pdata, pmsg->usz_io);
     return CAN_NO_ERROR;
 }

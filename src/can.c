@@ -8,14 +8,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static void print_hex(const uint8_t *pdata, uint32_t usz) {
+static void print_hex(const uint8_t *pdata, uint32_t usz)
+{
     for (size_t i = 0; i < usz; i++) {
         printf("%02X ", pdata[i]);
     }
     printf("\n");
 }
 
-static enum can_error set_nonblocking(int32_t sockfd) {
+static enum can_error set_nonblocking(int32_t sockfd)
+{
     int32_t flags = fcntl(sockfd, F_GETFL, 0);
     if (flags == -1) {
         perror("fcntl(F_GETFL)");
@@ -31,7 +33,8 @@ static enum can_error set_nonblocking(int32_t sockfd) {
 }
 
 struct socket_state *can_socket_open(const char *ifname, const uint32_t utx,
-                                     const uint32_t urx, enum can_error *perr) {
+                                     const uint32_t urx, enum can_error *perr)
+{
     uint8_t usockf = 0;
     int32_t idx = 0;
     struct socket_state *psock_state = NULL;
@@ -84,7 +87,8 @@ err:
     return NULL;
 }
 
-void can_socket_close(struct socket_state **ppsock_state) {
+void can_socket_close(struct socket_state **ppsock_state)
+{
     if (!ppsock_state || !*ppsock_state)
         return;
 
@@ -94,7 +98,8 @@ void can_socket_close(struct socket_state **ppsock_state) {
 }
 
 enum can_error can_socket_read(struct socket_state *psock_state,
-                               struct can_message *pmsg) {
+                               struct can_message *pmsg)
+{
     uint32_t usz_io = 0;
     int32_t irc = -1;
     fd_set read_fds;
@@ -140,7 +145,8 @@ enum can_error can_socket_read(struct socket_state *psock_state,
 }
 
 enum can_error can_socket_write(struct socket_state *psock_state,
-                                const struct can_message *pmsg) {
+                                const struct can_message *pmsg)
+{
     uint32_t usz_io = 0;
     int32_t irc = -1;
     fd_set write_fds;

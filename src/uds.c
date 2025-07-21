@@ -4,17 +4,16 @@
 #include <stdio.h>
 #include <string.h>
 
-
-struct uds_state *uds_init(const char *handler_dirname, uds_error_t *perr) 
-{ 
-  *perr = UDS_SERVICE_NOT_SUPPORTED;
-  return NULL;
+struct uds_state *uds_init(const char *handler_dirname, uds_error_t *perr)
+{
+    *perr = UDS_SERVICE_NOT_SUPPORTED;
+    return NULL;
 }
 
-
-uds_error_t handle_uds_request(const uint8_t *request, size_t request_len,
+int handle_uds_request(const uint8_t *request, size_t request_len,
                        uint8_t *response, size_t max_response_len,
-                       struct uds_state *puds) {
+                       struct uds_state *puds)
+{
     if (request_len < 1 || !response || max_response_len < 3) {
         return -1;
     }
@@ -39,6 +38,6 @@ uds_error_t handle_uds_request(const uint8_t *request, size_t request_len,
         response[2] = NRC_SERVICE_NOT_SUPPORTED;
         return 3;
     }
-    
+
     return UDS_SERVICE_NOT_SUPPORTED;
 }

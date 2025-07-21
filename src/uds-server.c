@@ -8,12 +8,13 @@
 
 #define CAN_TIMEOUT 1000
 #define INTERFACE_NAME "vcan0"
-#define WELCOME_MESSAGE                                                        \
-    ("Virtual UDS Server v0.0.0\n\
-Powered by Nikita Piliugin\n\
-Simulating ISO 14229 over CAN (UDS)\n")
+#define WELCOME_MESSAGE             \
+    ("Virtual UDS Server v0.0.0\n"  \
+     "Powered by Nikita Piliugin\n" \
+     "Simulating ISO 14229 over CAN (UDS)\n")
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     enum can_error err = CAN_ERROR_COMMON;
     struct socket_state *psock_state = NULL;
     struct can_message msg;

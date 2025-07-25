@@ -1,28 +1,18 @@
-BINDIR=bin
-INCDIR=inc
-SRCDIR=src
-OBJS=$(BINDIR)/uds-server.o $(BINDIR)/can.o $(BINDIR)/uds.o
-CXX=g++
-CC=clang
+SUBDIRS := uds_server uds_handlers  
 
-all: $(BINDIR)/uds-server
+.PHONY: all clean install $(SUBDIRS)
 
-$(BINDIR):
-	@echo "Creating bin directory"
-	mkdir $(BINDIR)
-
-$(BINDIR)/uds-server: $(OBJS) | $(BINDIR) 
-	@echo " LD uds-server"
-	$(CC) -o $@ $^ 
-
-$(BINDIR)/%.o: $(SRCDIR)/%.cpp | $(BINDIR)
-	@echo " CXX $@"
-	$(CXX) -c $< -o $@ -I $(INCDIR)
-
-$(BINDIR)/%.o: $(SRCDIR)/%.c | $(BINDIR)
-	@echo " CC $@"
-	$(CC) -c $< -o $@ -I $(INCDIR)
+all:
+	@echo " MAKE	build" 
+	@set -e; for dir in ${SUBDIRS}; do make -C $$dir all; done
 
 clean:
-	@echo "Cleaning up $(BINDIR)"
-	rm -f $(BINDIR)/*
+	@echo " MAKE clean" 
+	@set -e; for dir in ${SUBDIRS}; do make -C $$dir clean; done
+
+install:
+	@echo " MAKE	install" 
+	@set -e; for dir in ${SUBDIRS}; do make -C $$dir install; done
+
+test:
+	@echo " MAKE	test"

@@ -1,5 +1,8 @@
 SUBDIRS := uds_server uds_handlers  
 
+# build environment
+export BINDIR ?= bin
+
 .PHONY: all clean install $(SUBDIRS)
 
 all:
@@ -7,7 +10,7 @@ all:
 	@set -e; for dir in ${SUBDIRS}; do make -C $$dir all; done
 
 clean:
-	@echo " MAKE clean" 
+	@echo " MAKE	clean" 
 	@set -e; for dir in ${SUBDIRS}; do make -C $$dir clean; done
 
 install:

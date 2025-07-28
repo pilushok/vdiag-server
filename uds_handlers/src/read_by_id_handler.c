@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "uds.h"
+#include "uds_def.h"
 
 static int handle_read_data_by_id(const uint8_t *request, uint8_t *response,
                                   struct uds_state *ctx) {

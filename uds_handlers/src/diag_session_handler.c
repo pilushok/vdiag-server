@@ -1,4 +1,4 @@
-#include "uds.h"
+#include "uds_def.h"
 #include <stdint.h>
 
 static int handle_diagnostic_session_control(const uint8_t *request,

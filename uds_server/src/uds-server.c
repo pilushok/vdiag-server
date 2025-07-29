@@ -5,7 +5,9 @@
 #include "uds.h"
 #include "uds_def.h"
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #define CAN_TIMEOUT 1000
@@ -19,7 +21,7 @@ int main(int argc, char **argv)
 {
     enum can_error       err         = CAN_ERROR_COMMON;
     struct socket_state *psock_state = NULL;
-    struct can_message   msg;
+    struct can_message   msg, resp;
 
     uds_state_t *pstate  = NULL;
     uds_error_t  uds_err = UDS_ERROR_HANDLER_INIT;
@@ -41,15 +43,18 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    msg.usz_max = MAX_MESSAGE_SIZE;
+    msg.usz_max   = MAX_MESSAGE_SIZE;
+    uint8_t tmp[] = {0x11, 0x00};
     while (1) {
         err = can_socket_read(psock_state, &msg);
         if (CAN_NO_ERROR == err) {
+            uds_handle_msg(msg.pdata, msg.usz_io, resp.pdata, MAX_MESSAGE_SIZE,
+                           pstate);
             msg = (struct can_message){
-                .usz_io = 1, .pdata = {0x00}, .usz_max = MAX_MESSAGE_SIZE};
+                .usz_io = 2, .pdata = resp.pdata, .usz_max = MAX_MESSAGE_SIZE};
+            memcpy(msg.pdata, resp.pdata, 2);
             err = can_socket_write(psock_state, &msg);
         }
-        // uds_handle_msg(ubuf);
 
         usleep(10000);
     }

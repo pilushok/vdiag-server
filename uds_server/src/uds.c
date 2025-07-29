@@ -2,6 +2,7 @@
 #include "uds_def.h"
 #include <dirent.h>
 #include <dlfcn.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,15 +45,17 @@ err:
     return NULL;
 }
 
-int handle_uds_request(const uint8_t *request, size_t request_len,
-                       uint8_t *response, size_t max_response_len,
-                       struct uds_state *puds)
+uds_error_t uds_handle_msg(const uint8_t *request, size_t request_len,
+                           uint8_t *response, size_t max_response_len,
+                           struct uds_state *puds)
 {
+    uint32_t resplen = 0;
     if (request_len < 1 || !response || max_response_len < 3) {
         return -1;
     }
 
     uint8_t service_id = request[0];
+    printf("handling message service id %u\n", service_id);
 
     switch (service_id) {
     case UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
@@ -64,6 +67,11 @@ int handle_uds_request(const uint8_t *request, size_t request_len,
         // return handle_read_data_by_id(request, response, context);
 
     case UDS_SID_READ_MEMORY_BY_ADDRESS:
+        break;
+
+    case UDS_SID_TESTER_PRESENT:
+        puds->tester_present_handler(puds, request, request_len, response,
+                                     &resplen);
         break;
 
     default:

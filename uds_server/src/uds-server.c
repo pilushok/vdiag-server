@@ -24,6 +24,11 @@ int main(int argc, char **argv)
     uds_state_t *pstate  = NULL;
     uds_error_t  uds_err = UDS_ERROR_HANDLER_INIT;
 
+    if (argc < 2) {
+        printf("Invalid uds_server call. Try uds_server <handlers_lib_path>\n");
+        return -1;
+    }
+
     printf(WELCOME_MESSAGE);
     psock_state = can_socket_open(INTERFACE_NAME, 0x100, 0x120, &err);
     if (NULL == psock_state) {
@@ -31,7 +36,7 @@ int main(int argc, char **argv)
     }
     psock_state->uioto = CAN_TIMEOUT;
 
-    pstate = uds_init("/home/pilushok/dev/virtual_ecu/bin/uds_handlers/std_handlers.so", &uds_err);
+    pstate = uds_init(argv[1], &uds_err);
     if (!pstate) {
         return -1;
     }

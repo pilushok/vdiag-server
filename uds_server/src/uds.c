@@ -1,12 +1,46 @@
 #include "uds.h"
+#include "uds_def.h"
 #include <dirent.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-struct uds_state *uds_init(const char *handler_dirname, uds_error_t *perr)
+struct uds_state *uds_init(const char *handlers_lib, uds_error_t *perr)
 {
-    *perr = UDS_SERVICE_NOT_SUPPORTED;
+    uds_state_t *pstate = (uds_state_t *)calloc(1, sizeof(uds_state_t));
+    if (pstate == NULL) {
+        perror("uds_state malloc");
+        *perr = UDS_ERROR_MALLOC;
+        goto err;
+    }
+
+    pstate->handlers_lib = dlopen(handlers_lib, RTLD_LAZY);
+    if (!pstate->handlers_lib) {
+        perror("dlopen handlers lib");
+        *perr = UDS_ERROR_HANDLER_LIB_INIT;
+        goto err;
+    }
+    pstate->tester_present_handler =
+        (uds_tester_present_t)dlsym(pstate->handlers_lib, "uds_tester_present");
+    if (!pstate->tester_present_handler) {
+        printf("dlsym errno: %s\n", dlerror());
+        fflush(stdout);
+        perror("uds_tester_present");
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    return pstate;
+
+err:
+    if (pstate)
+        free(pstate);
+
+    if (pstate->handlers_lib)
+        free(pstate->handlers_lib);
+
     return NULL;
 }
 

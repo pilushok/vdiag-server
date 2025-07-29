@@ -2,6 +2,8 @@
 // #include "can.h"
 #include "can.h"
 #include "logger.h"
+#include "uds.h"
+#include "uds_def.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -15,16 +17,24 @@
 
 int main(int argc, char **argv)
 {
-    enum can_error err = CAN_ERROR_COMMON;
+    enum can_error       err         = CAN_ERROR_COMMON;
     struct socket_state *psock_state = NULL;
-    struct can_message msg;
-    printf(WELCOME_MESSAGE);
+    struct can_message   msg;
 
+    uds_state_t *pstate  = NULL;
+    uds_error_t  uds_err = UDS_ERROR_HANDLER_INIT;
+
+    printf(WELCOME_MESSAGE);
     psock_state = can_socket_open(INTERFACE_NAME, 0x100, 0x120, &err);
     if (NULL == psock_state) {
         return -1;
     }
     psock_state->uioto = CAN_TIMEOUT;
+
+    pstate = uds_init("/home/pilushok/dev/virtual_ecu/bin/uds_handlers/std_handlers.so", &uds_err);
+    if (!pstate) {
+        return -1;
+    }
 
     msg.usz_max = MAX_MESSAGE_SIZE;
     while (1) {

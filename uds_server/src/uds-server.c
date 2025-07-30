@@ -40,11 +40,11 @@ int main(int argc, char **argv)
 
     pstate = uds_init(argv[1], &uds_err);
     if (!pstate) {
+        printf("Unable to init uds_state ret_code: %d", uds_err);
         return -1;
     }
 
-    msg.usz_max   = MAX_MESSAGE_SIZE;
-    uint8_t tmp[] = {0x11, 0x00};
+    msg.usz_max = MAX_MESSAGE_SIZE;
     while (1) {
         err = can_socket_read(psock_state, &msg);
         if (CAN_NO_ERROR == err) {

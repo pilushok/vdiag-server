@@ -4,3 +4,6 @@
 [submodule "deps/CMock"]
 	path = deps/CMock
 	url = https://github.com/ThrowTheSwitch/CMock.git
+[submodule "deps/minunit"]
+	path = deps/minunit
+	url = https://github.com/siu/minunit.git

@@ -36,26 +36,6 @@ int __wrap_fcntl(int fd, int cmd, ...)
     return -1;
 }
 
-uint8_t g_calloc_fail = 0;
-// Mock calloc
-
-void *__real_calloc(size_t nmemb, size_t size);
-
-void *__wrap_calloc(size_t nmemb, size_t size)
-{
-    printf("Mock calloc(%zu, %zu)\n", nmemb, size);
-
-    if (g_calloc_fail) {
-        // Force failure by returning NULL (or customize behavior)
-        return NULL;
-    } else {
-        return __real_calloc(nmemb, size);
-    }
-
-    // Or delegate to real calloc if needed:
-    // return __real_calloc(nmemb, size);
-}
-
 // Override socket()
 int socket(int domain, int type, int protocol)
 {

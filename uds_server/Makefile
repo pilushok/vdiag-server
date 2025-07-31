@@ -10,7 +10,7 @@ CC=clang
 # TODO: debug
 export BINDIR ?= bin
 
-.PHONY: all clean install
+.PHONY: all clean install test
 
 all: ../$(BINDIR)/$(TARGET)/$(TARGET)
 	
@@ -25,6 +25,9 @@ $(BINDIR):
 ../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c | $(BINDIR)
 	@echo " CC	$@"
 	$(CC) -c $< -o $@ -I $(INCDIR)
+
+test:
+	$(CC) -Wall -Wextra -Wl,--wrap=fcntl,--wrap=calloc -D_GNU_SOURCE can.c ../src/can.c -I ../inc -I ../../deps/minunit -o test_can_socke	
 
 clean: 
 	@echo " RM	../$(BINDIR)/$(TARGET)/*"

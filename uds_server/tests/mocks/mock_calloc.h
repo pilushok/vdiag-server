@@ -1,9 +1,13 @@
+#pragma once
+
 #include <stddef.h>
 
-enum calloc_status {
+enum test_calloc_status {
     CALLOC_NO_ERROR = 0,
     CALLOC_FAIL     = 1
-} G_CALLOC_STATUS = CALLOC_NO_ERROR;
+};
+
+extern enum test_calloc_status G_CALLOC_STATUS;
 
 void *__real_calloc(size_t nmemb, size_t size);
 

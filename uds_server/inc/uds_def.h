@@ -142,6 +142,8 @@ typedef enum uds_error {
     UDS_SERVICE_NOT_SUPPORTED,
 } uds_error_t;
 
+struct uds_state;
+
 typedef uds_error_t (*uds_tester_present_t)(struct uds_state *puds,
                                             uint8_t *preq, uint32_t ureq_len,
                                             uint8_t  *presp,

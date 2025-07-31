@@ -1,7 +1,5 @@
 #include "mocks/mock_fcntl.h"
 
-extern enum fcntl_test_status G_FCNTL_STATUS;
-
 int __wrap_fcntl(int fd, int cmd, ...)
 {
     switch (G_FCNTL_STATUS) {

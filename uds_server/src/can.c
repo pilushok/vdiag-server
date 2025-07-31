@@ -35,8 +35,7 @@ static enum can_error set_nonblocking(int32_t sockfd)
 struct socket_state *can_socket_open(const char *ifname, const uint32_t utx,
                                      const uint32_t urx, enum can_error *perr)
 {
-    uint8_t usockf = 0;
-    int32_t idx = 0;
+    uint8_t              usockf      = 0;
     struct socket_state *psock_state = NULL;
 
     psock_state = (struct socket_state *)calloc(1, sizeof(struct socket_state));
@@ -54,11 +53,11 @@ struct socket_state *can_socket_open(const char *ifname, const uint32_t utx,
         goto err;
     }
     psock_state->proto = CAN_ISOTP;
-    usockf = 1;
+    usockf             = 1;
 
     memset(&psock_state->addr, 0, sizeof(psock_state->addr));
-    psock_state->addr.can_family = AF_CAN;
-    psock_state->addr.can_ifindex = if_nametoindex(ifname);
+    psock_state->addr.can_family        = AF_CAN;
+    psock_state->addr.can_ifindex       = if_nametoindex(ifname);
     psock_state->addr.can_addr.tp.tx_id = utx;
     psock_state->addr.can_addr.tp.rx_id = urx;
 
@@ -98,11 +97,11 @@ void can_socket_close(struct socket_state **ppsock_state)
 }
 
 enum can_error can_socket_read(struct socket_state *psock_state,
-                               struct can_message *pmsg)
+                               struct can_message  *pmsg)
 {
     uint32_t usz_io = 0;
-    int32_t irc = -1;
-    fd_set read_fds;
+    int32_t  irc    = -1;
+    fd_set   read_fds;
 
     if (!psock_state || !pmsg || !pmsg->usz_max) {
         return CAN_ERROR_INVALID_PARAM;
@@ -115,7 +114,7 @@ enum can_error can_socket_read(struct socket_state *psock_state,
     FD_ZERO(&read_fds);
     FD_SET(psock_state->sockfd, &read_fds);
 
-    struct timeval tv = {.tv_sec = psock_state->uioto / 1000,
+    struct timeval tv = {.tv_sec  = psock_state->uioto / 1000,
                          .tv_usec = (psock_state->uioto % 1000) * 1000};
 
     irc = select(psock_state->sockfd + 1, &read_fds, NULL, NULL, &tv);
@@ -144,12 +143,12 @@ enum can_error can_socket_read(struct socket_state *psock_state,
     return CAN_NO_ERROR;
 }
 
-enum can_error can_socket_write(struct socket_state *psock_state,
+enum can_error can_socket_write(struct socket_state      *psock_state,
                                 const struct can_message *pmsg)
 {
     uint32_t usz_io = 0;
-    int32_t irc = -1;
-    fd_set write_fds;
+    int32_t  irc    = -1;
+    fd_set   write_fds;
     if (!psock_state || !pmsg || !pmsg->usz_io) {
         perror("invalid param");
         return CAN_ERROR_INVALID_PARAM;
@@ -164,7 +163,7 @@ enum can_error can_socket_write(struct socket_state *psock_state,
     FD_ZERO(&write_fds);
     FD_SET(psock_state->sockfd, &write_fds);
 
-    struct timeval tv = {.tv_sec = psock_state->uioto / 1000,
+    struct timeval tv = {.tv_sec  = psock_state->uioto / 1000,
                          .tv_usec = (psock_state->uioto % 1000) * 1000};
 
     irc = select(psock_state->sockfd + 1, NULL, &write_fds, NULL, &tv);

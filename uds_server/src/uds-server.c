@@ -50,7 +50,6 @@ int main(int argc, char **argv)
         if (CAN_NO_ERROR == err) {
             uds_handle_msg(pstate, msg.pdata, msg.usz_io, resp.pdata,
                            &resp.usz_io);
-            // memcpy(msg.pdata, resp.pdata, resp.usz_io);
             err = can_socket_write(psock_state, &resp);
         }
 

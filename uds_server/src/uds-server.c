@@ -48,12 +48,10 @@ int main(int argc, char **argv)
     while (1) {
         err = can_socket_read(psock_state, &msg);
         if (CAN_NO_ERROR == err) {
-            uds_handle_msg(msg.pdata, msg.usz_io, resp.pdata, MAX_MESSAGE_SIZE,
-                           pstate);
-            msg = (struct can_message){
-                .usz_io = 2, .pdata = resp.pdata, .usz_max = MAX_MESSAGE_SIZE};
-            memcpy(msg.pdata, resp.pdata, 2);
-            err = can_socket_write(psock_state, &msg);
+            uds_handle_msg(pstate, msg.pdata, msg.usz_io, resp.pdata,
+                           &resp.usz_io);
+            // memcpy(msg.pdata, resp.pdata, resp.usz_io);
+            err = can_socket_write(psock_state, &resp);
         }
 
         usleep(10000);

@@ -140,19 +140,25 @@ typedef enum uds_error {
     UDS_ERROR_HANDLER_INIT,
     UDS_ERROR_HANDLER_LIB_INIT,
     UDS_SERVICE_NOT_SUPPORTED,
+    UDS_ERROR_INVALID_PARAM,
+    UDS_ERROR_HANDLER_INTERNAL
 } uds_error_t;
 
 struct uds_state;
 
 typedef uds_error_t (*uds_tester_present_t)(struct uds_state *puds,
-                                            uint8_t *preq, uint32_t ureq_len,
-                                            uint8_t  *presp,
-                                            uint32_t *presp_len);
-typedef uds_error_t (*uds_read_by_id_t)(uint8_t *preq, uint32_t ureq_len,
-                                        uint8_t *presp, uint32_t *presp_len);
-typedef uds_error_t (*uds_read_by_address_t)(uint8_t *preq, uint32_t ureq_len,
-                                             uint8_t  *presp,
-                                             uint32_t *presp_len);
+                                            const uint8_t    *preq,
+                                            const uint32_t    ureq_len,
+                                            uint8_t          *presp,
+                                            uint32_t         *presp_len);
+typedef uds_error_t (*uds_read_by_id_t)(const uint8_t *preq,
+                                        const uint32_t ureq_len, uint8_t *presp,
+                                        uint32_t *presp_len);
+typedef uds_error_t (*uds_read_by_address_t)(struct uds_state *puds,
+                                             const uint8_t    *preq,
+                                             const uint32_t    ureq_sz,
+                                             uint8_t          *presp,
+                                             uint32_t         *presp_sz);
 
 typedef struct uds_state {
     void                 *handlers_lib;

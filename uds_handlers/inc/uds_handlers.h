@@ -32,8 +32,10 @@ EXTERNC EXPORT uds_error_t uds_read_by_id(struct uds_state *puds,
                                           const uint8_t    *request,
                                           uint8_t          *response);
 
-EXTERNC EXPORT uds_error_t uds_read_by_address(struct uds_state *puds,
-                                               const uint8_t    *request,
-                                               uint8_t          *response);
+EXTERNC EXPORT uds_error_t uds_read_data_by_address(struct uds_state *puds,
+                                             const uint8_t    *preq,
+                                             const uint32_t    ureq_sz,
+                                             uint8_t          *presp,
+                                             uint32_t         *presp_sz);
 
 #endif

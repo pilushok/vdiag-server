@@ -26,9 +26,13 @@ struct uds_state *uds_init(const char *handlers_lib, uds_error_t *perr)
     pstate->tester_present_handler =
         (uds_tester_present_t)dlsym(pstate->handlers_lib, "uds_tester_present");
     if (!pstate->tester_present_handler) {
-        printf("dlsym errno: %s\n", dlerror());
-        fflush(stdout);
-        perror("uds_tester_present");
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    pstate->read_by_address_handler = (uds_read_by_address_t)dlsym(
+        pstate->handlers_lib, "uds_read_data_by_address");
+    if (!pstate->read_by_address_handler) {
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
@@ -36,6 +40,9 @@ struct uds_state *uds_init(const char *handlers_lib, uds_error_t *perr)
     return pstate;
 
 err:
+    printf("dlsym errno: %s\n", dlerror());
+    fflush(stdout);
+
     if (pstate)
         free(pstate);
 
@@ -45,17 +52,16 @@ err:
     return NULL;
 }
 
-uds_error_t uds_handle_msg(const uint8_t *request, size_t request_len,
-                           uint8_t *response, size_t max_response_len,
-                           struct uds_state *puds)
+uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
+                           const uint32_t request_len, uint8_t *response,
+                           uint32_t *presp_sz)
 {
-    uint32_t resplen = 0;
-    if (request_len < 1 || !response || max_response_len < 3) {
+    if (request_len < 1 || !response) {
         return -1;
     }
 
     uint8_t service_id = request[0];
-    printf("handling message service id %u\n", service_id);
+    printf("handling message service id %u", service_id);
 
     switch (service_id) {
     case UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
@@ -67,11 +73,13 @@ uds_error_t uds_handle_msg(const uint8_t *request, size_t request_len,
         // return handle_read_data_by_id(request, response, context);
 
     case UDS_SID_READ_MEMORY_BY_ADDRESS:
+        puds->read_by_address_handler(puds, request, request_len, response,
+                                      presp_sz);
         break;
 
     case UDS_SID_TESTER_PRESENT:
         puds->tester_present_handler(puds, request, request_len, response,
-                                     &resplen);
+                                     presp_sz);
         break;
 
     default:

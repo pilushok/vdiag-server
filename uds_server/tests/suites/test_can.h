@@ -84,5 +84,4 @@ MU_TEST_SUITE(can_isotp_suite)
     MU_RUN_TEST(test_can_socket_open_success);
     MU_RUN_TEST(test_can_socket_open_malloc_fail);
     MU_RUN_TEST(test_can_socket_open_bind_fail);
-    /* Add other tests here when enabled */
 }

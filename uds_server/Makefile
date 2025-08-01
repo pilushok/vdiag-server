@@ -23,7 +23,7 @@ export BINDIR ?= bin
 
 all: ../$(BINDIR)/$(TARGET)/$(TARGET) test
 	
-$(BINDIR):
+bin:
 	@echo " Creating build directory"
 	mkdir -p ../$(BINDIR)/$(TARGET)
 
@@ -31,11 +31,11 @@ tests_dir:
 	@echo " Creating tests directory"
 	mkdir -p ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)
 
-../$(BINDIR)/$(TARGET)/$(TARGET): $(OBJS) $(BINDIR)
+../$(BINDIR)/$(TARGET)/$(TARGET): $(OBJS) | bin
 	@echo " LD	uds_server"
 	$(CC) -o $@ $^
 
-../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c $(BINDIR)
+../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c | bin
 	@echo " CC	$@"
 	$(CC) -c $< -o $@ -I $(INCDIR)
 

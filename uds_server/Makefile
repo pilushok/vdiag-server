@@ -5,7 +5,13 @@ OBJS=../$(BINDIR)/$(TARGET)/uds-server.o \
 		 ../$(BINDIR)/$(TARGET)/can.o \
 		 ../$(BINDIR)/$(TARGET)/uds.o
 TESTS_DIR=tests
-TESTS_OBJS=../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/can.o
+TESTS_SRCDIR=src
+TESTS_OBJS=../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/mock_bind.o \
+			../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/mock_calloc.o \
+			../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/mock_fcntl.o \
+			../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/mock_if_nametoindex.o \
+			../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/mock_socket.o \
+			../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/test_entrypoint.o
 WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc
 CXX=clang++
 CC=clang
@@ -15,23 +21,32 @@ export BINDIR ?= bin
 
 .PHONY: all clean install test
 
-all: ../$(BINDIR)/$(TARGET)/$(TARGET)
+all: ../$(BINDIR)/$(TARGET)/$(TARGET) test
 	
 $(BINDIR):
 	@echo " Creating build directory"
 	mkdir -p ../$(BINDIR)/$(TARGET)
 
-../$(BINDIR)/$(TARGET)/$(TARGET): $(OBJS) | $(BINDIR)
+tests_dir:
+	@echo " Creating tests directory"
+	mkdir -p ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)
+
+../$(BINDIR)/$(TARGET)/$(TARGET): $(OBJS) $(BINDIR)
 	@echo " LD	uds_server"
 	$(CC) -o $@ $^
 
-../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c | $(BINDIR)
+../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c $(BINDIR)
 	@echo " CC	$@"
 	$(CC) -c $< -o $@ -I $(INCDIR)
 
-test:
-	$(CC) -Wall -Wextra $(WRAPS) -D_GNU_SOURCE $(TESTS_DIR)/can.c $(TESTS_DIR)/mock_calloc.c $(TESTS_DIR)/mock_socket.c $(TESTS_DIR)/mock_bind.c $(TESTS_DIR)/mock_if_nametoindex.c $(TESTS_DIR)/mock_fcntl.c src/can.c -I tests -I inc -I ../deps/minunit -o ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/test_can_socket	
+../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/%.o: $(TESTS_DIR)/$(TESTS_SRCDIR)/%.c ../$(BINDIR)/$(TARGET)/can.o | tests_dir
+	@echo " CC	$@"
+	$(CC) -c $< -o $@ -I $(INCDIR) -I $(TESTS_DIR) -I ../deps/minunit
+
+test: ../$(BINDIR)/$(TARGET)/can.o $(TESTS_OBJS) | tests_dir
+	@echo " LD	test_entrypoint"
+	$(CC) -o ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I $(INCDIR) 
 
 clean: 
 	@echo " RM	../$(BINDIR)/$(TARGET)/*"
-	rm -f ../$(BINDIR)/$(TARGET)/*
+	rm -rfv ../$(BINDIR)/$(TARGET)/*

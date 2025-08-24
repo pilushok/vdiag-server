@@ -7,7 +7,7 @@
 
 #define MIN_MEM_ADDR 0x0
 #define MAX_MEM_ADDR 0xFFFF
-#define MEM_FILENAME "/home/pilushok/dev/virtual_ecu/bin/state/ecu.mem"
+#define MEM_FILENAME "/home/harg/dev/virtual_ecu/bin/state/ecu.mem"
 
 static uint8_t is_valid_memory_range(uint32_t uaddr, uint32_t usz)
 {
@@ -104,14 +104,12 @@ EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
     for (uint8_t i = 0; i < uaddrlen; i++) {
         uaddr = (uaddr << 8) | uaddr_bytes[i];
     }
-    printf("uaddr: %u\n", uaddr);
 
     uint32_t       usz       = 0;
     const uint8_t *usz_bytes = &preq[2 + uaddrlen];
     for (uint8_t i = 0; i < uszlen; i++) {
         usz = (usz << 8) | usz_bytes[i];
     }
-    printf("usz: %u\n", usz);
 
     // Validate address range (implement your specific checks)
     if (!is_valid_memory_range(uaddr, usz)) {
@@ -133,6 +131,6 @@ EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
 
     // Build positive presp
     presp[0]  = UDS_SID_READ_MEMORY_BY_ADDRESS | 0x40;
-    *presp_sz = 1 + usz;
+    *presp_sz = 2 + usz;
     return UDS_NO_ERROR;
 }

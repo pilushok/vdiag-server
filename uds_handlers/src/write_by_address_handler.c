@@ -7,7 +7,7 @@
 
 #define MIN_MEM_ADDR 0x0
 #define MAX_MEM_ADDR 0xFFFF
-#define MEM_FILENAME "/home/pilushok/dev/virtual_ecu/bin/state/ecu.mem"
+#define MEM_FILENAME "/home/harg/dev/virtual_ecu/bin/state/ecu.mem"
 
 static uint8_t is_valid_memory_range(uint32_t uaddr, uint32_t usz)
 {
@@ -16,7 +16,7 @@ static uint8_t is_valid_memory_range(uint32_t uaddr, uint32_t usz)
 
 static int32_t write_memory(uint32_t uaddr, uint32_t usz, const uint8_t *pdata)
 {
-    int32_t memfd = open(MEM_FILENAME, O_RDWR | O_APPEND, NULL);
+    int32_t memfd = open(MEM_FILENAME, O_RDWR, NULL);
     int32_t uwritesz = 0;
 
     if (!pdata || usz == 0) {
@@ -96,6 +96,7 @@ EXTERNC uds_error_t uds_write_data_by_address(struct uds_state *puds,
         presp[1] = 0x3D;
         presp[2] = NRC_INCORRECT_MSG_LEN_OR_FORMAT;
         *presp_sz = 3;
+        printf("ureq_sz < uexp_len\n");
         return UDS_ERROR_HANDLER_INTERNAL;
     }
 
@@ -122,11 +123,13 @@ EXTERNC uds_error_t uds_write_data_by_address(struct uds_state *puds,
     }
 
     uint32_t data_offset = 2 + uaddrlen + uszlen;
+    printf("data_offset: %d\n", data_offset);
     if (ureq_sz < data_offset + usz) {
         presp[0] = UDS_SID_NEGATIVE_RESPONSE;
         presp[1] = 0x3D;
         presp[2] = NRC_INCORRECT_MSG_LEN_OR_FORMAT;
         *presp_sz = 3;
+        printf("ureq_sz < data_offset + usz\n");
         return UDS_ERROR_HANDLER_INTERNAL;
     }
 
@@ -138,6 +141,7 @@ EXTERNC uds_error_t uds_write_data_by_address(struct uds_state *puds,
         return UDS_ERROR_HANDLER_INTERNAL;
     }
 
+    printf("preq[data_offset]: %d\n", preq[data_offset]);
     if (write_memory(uaddr, usz, &preq[data_offset]) < 0) {
         presp[0] = UDS_SID_NEGATIVE_RESPONSE;
         presp[1] = 0x3D;
@@ -159,7 +163,8 @@ EXTERNC uds_error_t uds_write_data_by_address(struct uds_state *puds,
     for (uint8_t i = 0; i < uszlen; i++) {
         presp[2 + uaddrlen + i] = usz_bytes[i];
     }
-    
+     
     *presp_sz = 2 + uaddrlen + uszlen;
+    printf("debug presp_sz: %d\n", *presp_sz); 
     return UDS_NO_ERROR;
 }

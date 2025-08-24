@@ -11,4 +11,6 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
                            const uint32_t request_len, uint8_t *response,
                            uint32_t *presp_len);
 
+void uds_deinit(struct uds_state **ppuds);
+
 #endif

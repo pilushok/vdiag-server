@@ -103,3 +103,15 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
 
     return UDS_SERVICE_NOT_SUPPORTED;
 }
+
+
+void uds_deinit(struct uds_state **ppuds)
+{
+  if (!ppuds || !*ppuds) {
+    printf("warning: deinit of null uds_state suppressed\n");
+    return;
+  }
+
+  if ((*ppuds)->handlers_lib)
+    dlclose((*ppuds)->handlers_lib);
+}

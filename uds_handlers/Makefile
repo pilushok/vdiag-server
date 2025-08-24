@@ -8,7 +8,8 @@ SRCDIR=src
 OBJS=../$(BINDIR)/$(TARGET_DIR)/diag_session_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/read_by_id_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/read_by_address_handler.o \
-		 ../$(BINDIR)/$(TARGET_DIR)/tester_present_handler.o
+		 ../$(BINDIR)/$(TARGET_DIR)/tester_present_handler.o \
+		 ../$(BINDIR)/$(TARGET_DIR)/write_by_address_handler.o
 CXX=clang++
 CC=clang
 

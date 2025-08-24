@@ -1,4 +1,3 @@
-// project headers
 // #include "can.h"
 #include "can.h"
 #include "logger.h"
@@ -21,7 +20,7 @@ int main(int argc, char **argv)
 {
     enum can_error       err         = CAN_ERROR_COMMON;
     struct socket_state *psock_state = NULL;
-    struct can_message   msg, resp;
+    struct can_message   req, resp;
 
     uds_state_t *pstate  = NULL;
     uds_error_t  uds_err = UDS_ERROR_HANDLER_INIT;
@@ -44,11 +43,11 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    msg.usz_max = MAX_MESSAGE_SIZE;
+    req.usz_max = MAX_MESSAGE_SIZE;
     while (1) {
-        err = can_socket_read(psock_state, &msg);
+        err = can_socket_read(psock_state, &req);
         if (CAN_NO_ERROR == err) {
-            uds_handle_msg(pstate, msg.pdata, msg.usz_io, resp.pdata,
+            uds_handle_msg(pstate, req.pdata, req.usz_io, resp.pdata,
                            &resp.usz_io);
             err = can_socket_write(psock_state, &resp);
         }

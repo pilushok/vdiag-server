@@ -14,32 +14,43 @@ static uint8_t is_valid_memory_range(uint32_t uaddr, uint32_t usz)
     return uaddr >= MIN_MEM_ADDR && uaddr + usz <= MAX_MEM_ADDR;
 }
 
-static uint8_t read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata,
-                           uint32_t ubufsz)
+static int32_t read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
 {
-    int32_t  memfd   = open(MEM_FILENAME, O_RDONLY);
-    uint32_t ureadsz = 0;
-    if (-1 == memfd) {
-        perror("memory file");
-        return 0;
+    int32_t memfd   = open(MEM_FILENAME, O_RDONLY);
+    int32_t ureadsz = 0;
+
+    if (!pdata || usz == 0) {
+        fprintf(stderr, "Invalid parameters: pdata=%p, usz=%u\n", (void *)pdata,
+                usz);
+        return -1;
     }
 
-    if (lseek(memfd, uaddr, SEEK_SET)) {
+    if (-1 == memfd) {
+        perror("memory file");
+        return -1;
+    }
+
+    if (lseek(memfd, uaddr, SEEK_SET) < 0) {
         perror("memory seek");
-        return 0;
+        goto err;
     }
 
     ureadsz = read(memfd, pdata, usz);
     if (-1 == ureadsz) {
         perror("memory read");
-        return 0;
+        goto err;
     } else if (ureadsz != usz) {
         perror("memory read not complete");
-        return 0;
+        goto err;
     }
-    ubufsz = ureadsz;
-    close(memfd);
-    return 1;
+
+    return ureadsz;
+
+err:
+    if (-1 != memfd)
+        close(memfd);
+
+    return -1;
 }
 
 EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
@@ -59,14 +70,22 @@ EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
         return UDS_ERROR_HANDLER_INTERNAL;
     }
 
+    // if (puds->security_level < REQUIRED_SECURITY_LEVEL_FOR_MEMORY_ACCESS) {
+    //     presp[0] = UDS_SID_NEGATIVE_RESPONSE;
+    //     presp[1] = UDS_SID_READ_MEMORY_BY_ADDRESS;
+    //     presp[2] = NRC_SECURITY_ACCESS_DENIED;
+    //     *presp_sz = 3;
+    //     return UDS_ERROR_HANDLER_INTERNAL;
+    // }
+
     uint8_t uaddrlen_szlen = preq[1];
     uint8_t uaddrlen       = (uaddrlen_szlen >> 4) & 0x0F;
     uint8_t uszlen         = uaddrlen_szlen & 0x0F;
 
-    if (uaddrlen == 0 || uszlen == 0) {
+    if (uaddrlen == 0 || uaddrlen > 4 || uszlen == 0 || uszlen > 4) {
         presp[0]  = UDS_SID_NEGATIVE_RESPONSE;
         presp[1]  = UDS_SID_READ_MEMORY_BY_ADDRESS;
-        presp[2]  = NRC_INCORRECT_MSG_LEN_OR_FORMAT;
+        presp[2]  = NRC_REQUEST_OUT_OF_RANGE;
         *presp_sz = 3;
         return UDS_ERROR_HANDLER_INTERNAL;
     }
@@ -85,12 +104,14 @@ EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
     for (uint8_t i = 0; i < uaddrlen; i++) {
         uaddr = (uaddr << 8) | uaddr_bytes[i];
     }
+    printf("uaddr: %u\n", uaddr);
 
     uint32_t       usz       = 0;
     const uint8_t *usz_bytes = &preq[2 + uaddrlen];
     for (uint8_t i = 0; i < uszlen; i++) {
         usz = (usz << 8) | usz_bytes[i];
     }
+    printf("usz: %u\n", usz);
 
     // Validate address range (implement your specific checks)
     if (!is_valid_memory_range(uaddr, usz)) {
@@ -102,7 +123,7 @@ EXTERNC uds_error_t uds_read_data_by_address(struct uds_state *puds,
     }
 
     // Read memory (implement your hardware-specific read)
-    if (!read_memory(uaddr, usz, &presp[2], usz)) {
+    if (read_memory(uaddr, usz, &presp[2]) < 0) {
         presp[0]  = UDS_SID_NEGATIVE_RESPONSE;
         presp[1]  = UDS_SID_READ_MEMORY_BY_ADDRESS;
         presp[2]  = NRC_REQUEST_OUT_OF_RANGE;

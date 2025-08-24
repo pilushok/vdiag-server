@@ -106,6 +106,7 @@ enum can_error can_socket_read(struct socket_state *psock_state,
     if (!psock_state || !pmsg || !pmsg->usz_max) {
         return CAN_ERROR_INVALID_PARAM;
     }
+    memset(pmsg->pdata, 0, MAX_MESSAGE_SIZE);
 
     if (psock_state->sockfd <= 0) {
         return CAN_ERROR_SOCKET_CLOSED;
@@ -120,15 +121,15 @@ enum can_error can_socket_read(struct socket_state *psock_state,
     irc = select(psock_state->sockfd + 1, &read_fds, NULL, NULL, &tv);
 
     if (irc == 0) {
-        printf("select timeout\n");
+        // printf("select timeout\n");
         return CAN_ERROR_TIMEOUT;
     } else if (irc < 0) {
         perror("select");
         return CAN_ERROR_READ;
     }
 
-    usz_io = read(psock_state->sockfd, pmsg->pdata, pmsg->usz_max);
-
+    usz_io = read(psock_state->sockfd, pmsg->pdata, MAX_MESSAGE_SIZE);
+    printf("usz_io in socket_read %u\n", usz_io);
     if (usz_io < 0) {
         perror("read");
         return CAN_ERROR_READ;

@@ -37,6 +37,13 @@ struct uds_state *uds_init(const char *handlers_lib, uds_error_t *perr)
         goto err;
     }
 
+    pstate->write_by_address_handler = (uds_write_by_address_t)dlsym(
+        pstate->handlers_lib, "uds_write_data_by_address");
+    if (!pstate->write_by_address_handler) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
     return pstate;
 
 err:
@@ -61,7 +68,7 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
     }
 
     uint8_t service_id = request[0];
-    printf("handling message service id %u", service_id);
+    printf("handling message service id %u\n", service_id);
 
     switch (service_id) {
     case UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
@@ -80,6 +87,11 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
     case UDS_SID_TESTER_PRESENT:
         puds->tester_present_handler(puds, request, request_len, response,
                                      presp_sz);
+        break;
+
+    case UDS_SID_WRITE_MEMORY_BY_ADDRESS:
+        puds->write_by_address_handler(puds, request, request_len, response,
+                                       presp_sz);
         break;
 
     default:

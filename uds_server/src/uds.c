@@ -64,7 +64,7 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
                            uint32_t *presp_sz)
 {
     if (request_len < 1 || !response) {
-        return -1;
+        return UDS_ERROR_INVALID_PARAM;
     }
 
     uint8_t service_id = request[0];

@@ -38,6 +38,7 @@ struct socket_state *can_socket_open(const char *ifname, const uint32_t utx,
     uint8_t              usockf      = 0;
     struct socket_state *psock_state = NULL;
 
+    printf("Initializing can socket interface: %s, tx id: %X, rx id: %X\n", ifname, utx, urx);
     psock_state = (struct socket_state *)calloc(1, sizeof(struct socket_state));
     if (NULL == psock_state) {
         perror("malloc");
@@ -122,6 +123,7 @@ enum can_error can_socket_read(struct socket_state *psock_state,
 
     if (irc == 0) {
         // printf("select timeout\n");
+        // This is not actually an error in sync mode 
         return CAN_ERROR_TIMEOUT;
     } else if (irc < 0) {
         perror("select");

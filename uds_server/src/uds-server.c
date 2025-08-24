@@ -10,6 +10,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
+#include <limits.h>
+#include <ctype.h>
 
 #define CAN_TIMEOUT 1000
 #define INTERFACE_NAME "vcan0"
@@ -20,12 +23,12 @@
 
 // Global variables
 static struct socket_state *psock_state = NULL;
-static uds_state_t *pstate  = NULL;
+static uds_state_t         *pstate      = NULL;
 
 void uds_server_stop()
 {
-  can_socket_close(&psock_state);
-  uds_deinit(&pstate);
+    can_socket_close(&psock_state);
+    uds_deinit(&pstate);
 }
 
 void signal_handler(int sig)
@@ -35,22 +38,23 @@ void signal_handler(int sig)
     exit(sig);
 }
 
-
 int main(int argc, char **argv)
 {
-    enum can_error       err         = CAN_ERROR_COMMON;
-    struct can_message   req, resp;
+    enum can_error     err = CAN_ERROR_COMMON;
+    struct can_message req, resp;
+    uds_error_t        uds_err = UDS_ERROR_HANDLER_INIT;
+    uint32_t           urx, utx;
 
-    uds_error_t  uds_err = UDS_ERROR_HANDLER_INIT;
-
-    if (argc < 2) {
-        printf("Invalid uds_server call. Try uds_server <handlers_lib_path>\n");
+    if (argc < 4) {
+        printf("Invalid uds_server call. Try uds_server <handlers_lib_path> "
+               "<can_tx_id> <can_rx_id>\n");
         return EXIT_FAILURE;
     }
 
     printf(WELCOME_MESSAGE);
-    psock_state = can_socket_open(INTERFACE_NAME, 0x100, 0x120, &err);
-    if (NULL == psock_state) {
+    // TODO: need to implement and validation of addresses
+    psock_state = can_socket_open(INTERFACE_NAME, atoi(argv[2]), atoi(argv[3]), &err);
+    if (!psock_state) {
         return EXIT_FAILURE;
     }
     psock_state->uioto = CAN_TIMEOUT;
@@ -60,7 +64,7 @@ int main(int argc, char **argv)
         printf("Unable to init uds_state ret_code: %d", uds_err);
         return EXIT_FAILURE;
     }
-    
+
     // setup signal handler for correct shuting down
     signal(SIGINT, signal_handler);
     signal(SIGINT, signal_handler);

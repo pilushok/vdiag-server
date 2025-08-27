@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// handler headers
+#include "tp_def.h"
 #include "rdba_def.h"
 
 #define LOAD_UDS_HANDLER_SETUP(pstate, service_name, puds_impl)    \
@@ -34,7 +36,7 @@
 
 typedef struct uds_state {
     void *puds_impl;
-    // uds_tester_present_t   tester_present_handler;
+    itp_t   tp;
     irdba_t rdba;
     // uds_read_by_id_t       read_by_id_handler;
     // uds_write_by_address_t write_by_address_handler;

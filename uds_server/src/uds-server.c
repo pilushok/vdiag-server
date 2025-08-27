@@ -70,6 +70,8 @@ int main(int argc, char **argv)
     signal(SIGINT, signal_handler);
 
     while (1) {
+        memset(&req, 0, sizeof(req));
+        memset(&resp, 0, sizeof(resp));
         err = can_socket_read(psock_state, &req);
         if (CAN_NO_ERROR == err) {
             uds_err = uds_handle_msg(pstate, req, &resp);

@@ -141,7 +141,7 @@ EXTERNC EXPORT void uds_rdba_pack(struct uds_state *puds,
     if (res.rc != NRC_POSITIVE_RESPONSE) {
         presp->pdata[0] = UDS_SID_NEGATIVE_RESPONSE;
         presp->pdata[1] = UDS_SID_READ_MEMORY_BY_ADDRESS;
-        presp->pdata[2] = NRC_REQUEST_OUT_OF_RANGE;
+        presp->pdata[2] = res.rc;
         presp->usz      = 3;
     }
 

@@ -10,6 +10,7 @@
 // handler headers
 #include "tp_def.h"
 #include "rdba_def.h"
+#include "wrba_def.h"
 
 #define LOAD_UDS_HANDLER_SETUP(pstate, service_name, puds_impl)    \
     pstate->service_name##_handle = (uds_##service_name##_t)dlsym( \
@@ -39,7 +40,7 @@ typedef struct uds_state {
     itp_t   tp;
     irdba_t rdba;
     // uds_read_by_id_t       read_by_id_handler;
-    // uds_write_by_address_t write_by_address_handler;
+    iwrba_t wrba;
     uint32_t client_addr;
     uint8_t  session_type;
 } uds_state_t;

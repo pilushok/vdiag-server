@@ -69,6 +69,26 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
+
+    // wrba
+    puds->wrba.setup =
+        (puds_wrba_setup_t)dlsym(puds->puds_impl, "uds_wrba_setup");
+    if (!puds->wrba.setup) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    puds->wrba.call = (puds_wrba_t)dlsym(puds->puds_impl, "uds_wrba");
+    if (!puds->wrba.call) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    puds->wrba.pack = (puds_wrba_pack_t)dlsym(puds->puds_impl, "uds_wrba_pack");
+    if (!puds->wrba.pack) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
     // puds->write_by_address_handler = (uds_write_by_address_t)dlsym(
     //     puds->puds_impl, "uds_write_data_by_address");
     // if (!puds->write_by_address_handler) {
@@ -100,6 +120,9 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
 
     uds_tp_result_t tp_res;
     uds_tp_params_t tp_param;
+    
+    uds_wrba_result_t wrba_res;
+    uds_wrba_params_t wrba_param;
 
     if (req.usz < 1 || !presp || !puds) {
         return UDS_ERROR_INVALID_PARAM;
@@ -138,8 +161,13 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         break;
 
     case UDS_SID_WRITE_MEMORY_BY_ADDRESS:
-        // puds->write_by_address_handler(puds, request, request_len, response,
-        //                                presp_sz);
+        wrba_res.rc = puds->wrba.setup(puds, req, &wrba_param);
+
+        if (wrba_res.rc == NRC_POSITIVE_RESPONSE) {
+            wrba_res = puds->wrba.call(puds, wrba_param);
+        }
+        puds->wrba.pack(puds, wrba_res, presp);
+        return UDS_NO_ERROR;
         break;
 
     default:

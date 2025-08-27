@@ -1,11 +1,12 @@
-// #include "uds_handlers.h"
-#include "rdba_handler.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <uds_def.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "wrba_handler.h"
 
 #define MIN_MEM_ADDR 0x0
 #define MAX_MEM_ADDR 0xFFFF
@@ -16,10 +17,11 @@ static inline uint8_t __check_range(uint32_t uaddr, uint32_t usz)
     return uaddr >= MIN_MEM_ADDR && uaddr + usz <= MAX_MEM_ADDR;
 }
 
-static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
+static int32_t __write_memory(uint32_t uaddr, uint32_t usz,
+                              const uint8_t *pdata)
 {
-    int32_t memfd   = open(MEM_FILENAME, O_RDONLY);
-    int32_t ireadsz = 0;
+    int32_t memfd    = open(MEM_FILENAME, O_WRONLY);
+    int32_t iwritesz = 0;
 
     if (!pdata || usz == 0) {
         fprintf(stderr, "Invalid parameters: pdata=%p, usz=%u\n", (void *)pdata,
@@ -27,7 +29,7 @@ static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
         return -1;
     }
 
-    if (-1 == memfd) {
+    if (memfd < 0) {
         perror("memory file");
         return -1;
     }
@@ -36,36 +38,37 @@ static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
         perror("memory seek");
         goto err;
     }
-
-    ireadsz = read(memfd, pdata, usz);
-    if (-1 == ireadsz) {
-        perror("memory read");
+  
+    iwritesz = write(memfd, pdata, usz);
+    if (iwritesz < 0) {
+        perror("memory write");
         goto err;
-    } else if (ireadsz != usz) {
-        perror("memory read not complete");
+    } else if (iwritesz != usz) {
+        perror("memory write not complete");
         goto err;
     }
 
-    return ireadsz;
+    close(memfd);
+    return iwritesz;
 
 err:
-    if (-1 != memfd)
+    if (memfd != -1)
         close(memfd);
 
     return -1;
 }
 
-EXTERNC EXPORT uds_nrc_t uds_rdba_setup(struct uds_state   *puds,
+EXTERNC EXPORT uds_nrc_t uds_wrba_setup(struct uds_state   *puds,
                                         const can_message_t req,
-                                        uds_rdba_params_t  *pparams)
+                                        uds_wrba_params_t  *pparams)
 {
     uint8_t  usubfnc, uaddrlen, uszlen;
     uint32_t uexplen, uaddr, usz;
     uint8_t *uaddr_raw, *usz_raw;
+    uint32_t data_offset;
 
-    // TODO: work around diag_session status
     if (!pparams || !puds) {
-        return NRC_CONDITIONS_NOT_CORRECT;
+        return NRC_GENERAL_REJECT;
     }
 
     if (req.usz < 2) {
@@ -104,52 +107,53 @@ EXTERNC EXPORT uds_nrc_t uds_rdba_setup(struct uds_state   *puds,
     if (!__check_range(uaddr, usz)) {
         return NRC_REQUEST_OUT_OF_RANGE;
     }
+
+    // Verify we have enough data for the write operation
+    data_offset = 2 + uaddrlen + uszlen;
+    if (req.usz < data_offset + usz) {
+        return NRC_INCORRECT_MSG_LEN_OR_FORMAT;
+    }
+
     pparams->uaddr = uaddr;
-    pparams->usz = usz;
+    pparams->usz   = usz;
+    pparams->pdata = (uint8_t *)&req.pdata[data_offset];
 
     return NRC_POSITIVE_RESPONSE;
 }
 
-EXTERNC EXPORT uds_rdba_result_t uds_rdba(struct uds_state       *puds,
-                                          const uds_rdba_params_t params)
+EXTERNC EXPORT uds_wrba_result_t uds_wrba(struct uds_state       *puds,
+                                          const uds_wrba_params_t params)
 {
-    uds_rdba_result_t res;
+    uds_wrba_result_t res;
     memset(&res, 0, sizeof(res));
-    res.pdata = (uint8_t *)calloc(MAX_DATA_CHUNK_SIZE * sizeof(uint8_t), 1);
 
-    // TODO: work around diag_session status
     if (!puds) {
         res.rc = NRC_CONDITIONS_NOT_CORRECT;
         return res;
     }
 
-    // Read memory (implement your hardware-specific read)
-    res.usz = __read_memory(params.uaddr, params.usz, res.pdata);
-    if (res.usz < 0) {
+    // Write memory
+    if (__write_memory(params.uaddr, params.usz, params.pdata) < 0) {
         res.rc = NRC_CONDITIONS_NOT_CORRECT;
         return res;
     }
-    
 
+    res.rc = NRC_POSITIVE_RESPONSE;
     return res;
 }
 
-EXTERNC EXPORT void uds_rdba_pack(struct uds_state *puds, 
-                                  uds_rdba_result_t res,
+EXTERNC EXPORT void uds_wrba_pack(struct uds_state *puds, uds_wrba_result_t res,
                                   struct can_message *presp)
 {
     if (res.rc != NRC_POSITIVE_RESPONSE) {
         presp->pdata[0] = UDS_SID_NEGATIVE_RESPONSE;
-        presp->pdata[1] = UDS_SID_READ_MEMORY_BY_ADDRESS;
+        presp->pdata[1] = UDS_SID_WRITE_MEMORY_BY_ADDRESS;
         presp->pdata[2] = res.rc;
         presp->usz      = 3;
+        return;
     }
 
-    presp->pdata[0] = UDS_SID_READ_MEMORY_BY_ADDRESS | 0x40;
-    memcpy(&presp->pdata[1], res.pdata, res.usz);
-    presp->usz = 1 + res.usz;
-
-    // finalize section
-    free(res.pdata);
-    res.pdata = NULL;
+    // Positive response for write is just the service ID + 0x40
+    presp->pdata[0] = UDS_SID_WRITE_MEMORY_BY_ADDRESS | 0x40;
+    presp->usz      = 1;
 }

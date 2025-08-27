@@ -1,4 +1,5 @@
 #include "uds.h"
+#include "can.h"
 #include "uds_def.h"
 #include <dirent.h>
 #include <dlfcn.h>
@@ -8,66 +9,82 @@
 #include <string.h>
 #include <errno.h>
 
-struct uds_state *uds_init(const char *handlers_lib, uds_error_t *perr)
+struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
 {
-    uds_state_t *pstate = (uds_state_t *)calloc(1, sizeof(uds_state_t));
-    if (pstate == NULL) {
+    uds_state_t *puds = (uds_state_t *)calloc(1, sizeof(uds_state_t));
+    if (puds == NULL) {
         perror("uds_state malloc");
         *perr = UDS_ERROR_MALLOC;
         goto err;
     }
 
-    pstate->handlers_lib = dlopen(handlers_lib, RTLD_LAZY);
-    if (!pstate->handlers_lib) {
+    puds->puds_impl = dlopen(puds_impl, RTLD_LAZY);
+    if (!puds->puds_impl) {
         perror("dlopen handlers lib");
         *perr = UDS_ERROR_HANDLER_LIB_INIT;
         goto err;
     }
-    pstate->tester_present_handler =
-        (uds_tester_present_t)dlsym(pstate->handlers_lib, "uds_tester_present");
-    if (!pstate->tester_present_handler) {
+    // puds->tester_present_handler =
+    //     (uds_tester_present_t)dlsym(puds->puds_impl,
+    //     "uds_tester_present");
+    // if (!puds->tester_present_handler) {
+    //     *perr = UDS_ERROR_HANDLER_INIT;
+    //     goto err;
+    // }
+
+    puds->rdba.setup =
+        (puds_rdba_setup_t)dlsym(puds->puds_impl, "uds_rdba_setup");
+    if (!puds->rdba.setup) {
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
 
-    pstate->read_by_address_handler = (uds_read_by_address_t)dlsym(
-        pstate->handlers_lib, "uds_read_data_by_address");
-    if (!pstate->read_by_address_handler) {
+    puds->rdba.call = (puds_rdba_t)dlsym(puds->puds_impl, "uds_rdba");
+    if (!puds->rdba.call) {
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
 
-    pstate->write_by_address_handler = (uds_write_by_address_t)dlsym(
-        pstate->handlers_lib, "uds_write_data_by_address");
-    if (!pstate->write_by_address_handler) {
+    puds->rdba.pack =
+        (puds_rdba_pack_t)dlsym(puds->puds_impl, "uds_rdba_pack");
+    if (!puds->rdba.pack) {
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
+    // puds->write_by_address_handler = (uds_write_by_address_t)dlsym(
+    //     puds->puds_impl, "uds_write_data_by_address");
+    // if (!puds->write_by_address_handler) {
+    //     *perr = UDS_ERROR_HANDLER_INIT;
+    //     goto err;
+    // }
 
-    return pstate;
+    return puds;
 
 err:
     printf("dlsym errno: %s\n", dlerror());
     fflush(stdout);
 
-    if (pstate)
-        free(pstate);
+    if (puds)
+        free(puds);
 
-    if (pstate->handlers_lib)
-        free(pstate->handlers_lib);
+    if (puds->puds_impl)
+        free(puds->puds_impl);
 
     return NULL;
 }
 
-uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
-                           const uint32_t request_len, uint8_t *response,
-                           uint32_t *presp_sz)
+uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
+                           struct can_message *presp)
 {
-    if (request_len < 1 || !response) {
+    uds_nrc_t         rc;
+    uds_rdba_result_t rdba_res;
+    uds_rdba_params_t rdba_param;
+
+    if (req.usz < 1 || !presp || !puds) {
         return UDS_ERROR_INVALID_PARAM;
     }
 
-    uint8_t service_id = request[0];
+    uint8_t service_id = req.pdata[0];
     printf("handling message service id %u\n", service_id);
 
     switch (service_id) {
@@ -80,38 +97,46 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const uint8_t *request,
         // return handle_read_data_by_id(request, response, context);
 
     case UDS_SID_READ_MEMORY_BY_ADDRESS:
-        puds->read_by_address_handler(puds, request, request_len, response,
-                                      presp_sz);
+        printf("going to setup\n");
+        rdba_res.rc = puds->rdba.setup(puds, req, &rdba_param);
+      
+        printf("going to setup\n");
+        if (rdba_res.rc == NRC_POSITIVE_RESPONSE) {
+            printf("going to call\n");
+            rdba_res = puds->rdba.call(puds, rdba_param);
+        }
+        printf("going to pack\n");
+        puds->rdba.pack(puds, rdba_res, presp);
+        return UDS_NO_ERROR;
         break;
 
     case UDS_SID_TESTER_PRESENT:
-        puds->tester_present_handler(puds, request, request_len, response,
-                                     presp_sz);
+        // puds->tester_present_handler(puds, request, request_len, response,
+        //                              presp_sz);
         break;
 
     case UDS_SID_WRITE_MEMORY_BY_ADDRESS:
-        puds->write_by_address_handler(puds, request, request_len, response,
-                                       presp_sz);
+        // puds->write_by_address_handler(puds, request, request_len, response,
+        //                                presp_sz);
         break;
 
     default:
-        response[0] = UDS_NEGATIVE_RESPONSE;
-        response[1] = service_id;
-        response[2] = NRC_SERVICE_NOT_SUPPORTED;
+        presp->pdata[0] = UDS_NEGATIVE_RESPONSE;
+        presp->pdata[1] = service_id;
+        presp->pdata[2] = NRC_SERVICE_NOT_SUPPORTED;
         return 3;
     }
 
     return UDS_SERVICE_NOT_SUPPORTED;
 }
 
-
 void uds_deinit(struct uds_state **ppuds)
 {
-  if (!ppuds || !*ppuds) {
-    printf("warning: deinit of null uds_state suppressed\n");
-    return;
-  }
+    if (!ppuds || !*ppuds) {
+        printf("warning: deinit of null uds_state suppressed\n");
+        return;
+    }
 
-  if ((*ppuds)->handlers_lib)
-    dlclose((*ppuds)->handlers_lib);
+    if ((*ppuds)->puds_impl)
+        dlclose((*ppuds)->puds_impl);
 }

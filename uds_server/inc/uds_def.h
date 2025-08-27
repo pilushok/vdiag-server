@@ -1,7 +1,8 @@
-#ifndef UDS_DEF_H
-#define UDS_DEF_H
+#ifndef __UDS_DEF_H__
+#define __UDS_DEF_H__
 
 #include <stdint.h>
+#include "can.h"
 
 #define UDS_NEGATIVE_RESPONSE 0x7F
 
@@ -143,36 +144,5 @@ typedef enum uds_error {
     UDS_ERROR_INVALID_PARAM,
     UDS_ERROR_HANDLER_INTERNAL
 } uds_error_t;
-
-struct uds_state;
-
-typedef uds_error_t (*uds_tester_present_t)(struct uds_state *puds,
-                                            const uint8_t    *preq,
-                                            const uint32_t    ureq_len,
-                                            uint8_t          *presp,
-                                            uint32_t         *presp_len);
-typedef uds_error_t (*uds_read_by_id_t)(const uint8_t *preq,
-                                        const uint32_t ureq_len, uint8_t *presp,
-                                        uint32_t *presp_len);
-typedef uds_error_t (*uds_read_by_address_t)(struct uds_state *puds,
-                                             const uint8_t    *preq,
-                                             const uint32_t    ureq_sz,
-                                             uint8_t          *presp,
-                                             uint32_t         *presp_sz);
-typedef uds_error_t (*uds_write_by_address_t)(struct uds_state *puds,
-                                              const uint8_t    *preq,
-                                              const uint32_t    ureq_sz,
-                                              uint8_t          *presp,
-                                              uint32_t         *presp_sz);
-
-typedef struct uds_state {
-    void                  *handlers_lib;
-    uds_tester_present_t   tester_present_handler;
-    uds_read_by_address_t  read_by_address_handler;
-    uds_read_by_id_t       read_by_id_handler;
-    uds_write_by_address_t write_by_address_handler;
-    uint32_t               client_addr;
-    uint8_t                session_type;
-} uds_state_t;
 
 #endif

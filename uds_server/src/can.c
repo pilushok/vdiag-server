@@ -104,7 +104,7 @@ enum can_error can_socket_read(struct socket_state *psock_state,
     int32_t  irc    = -1;
     fd_set   read_fds;
 
-    if (!psock_state || !pmsg || !pmsg->usz_max) {
+    if (!psock_state || !pmsg) {
         return CAN_ERROR_INVALID_PARAM;
     }
     memset(pmsg->pdata, 0, MAX_MESSAGE_SIZE);
@@ -142,7 +142,7 @@ enum can_error can_socket_read(struct socket_state *psock_state,
 
     printf("Can message received hex: ");
     print_hex(pmsg->pdata, usz_io);
-    pmsg->usz_io = usz_io;
+    pmsg->usz = usz_io;
     return CAN_NO_ERROR;
 }
 
@@ -152,7 +152,7 @@ enum can_error can_socket_write(struct socket_state      *psock_state,
     uint32_t usz_io = 0;
     int32_t  irc    = -1;
     fd_set   write_fds;
-    if (!psock_state || !pmsg || !pmsg->usz_io) {
+    if (!psock_state || !pmsg || !pmsg->usz) {
         perror("invalid param");
         return CAN_ERROR_INVALID_PARAM;
     }
@@ -178,17 +178,17 @@ enum can_error can_socket_write(struct socket_state      *psock_state,
         return CAN_ERROR_WRITE;
     }
 
-    usz_io = write(psock_state->sockfd, pmsg->pdata, pmsg->usz_io);
+    usz_io = write(psock_state->sockfd, pmsg->pdata, pmsg->usz);
 
     if (usz_io < 0) {
         perror("write");
         return CAN_ERROR_WRITE;
-    } else if (usz_io != pmsg->usz_io) {
+    } else if (usz_io != pmsg->usz) {
         perror("incomplete write");
         return CAN_ERROR_WRITE;
     }
 
     printf("Bytes successfully sent to socket hex: ");
-    print_hex(pmsg->pdata, pmsg->usz_io);
+    print_hex(pmsg->pdata, pmsg->usz);
     return CAN_NO_ERROR;
 }

@@ -1,3 +1,6 @@
+#ifndef __CAN_H__
+#define __CAN_H__
+
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -13,7 +16,7 @@
 #define MAX_SLOTS 2
 #define MAX_MESSAGE_SIZE 4096
 
-enum can_error {
+typedef enum can_error {
     CAN_NO_ERROR = 0,
     CAN_ERROR_COMMON = 1,
     CAN_ERROR_SOCKET_INIT,
@@ -26,13 +29,12 @@ enum can_error {
     CAN_ERROR_READ,
     CAN_ERROR_WRITE,
     CAN_ERROR_IOCTL,
-};
+} can_error_t;
 
-struct can_message {
+typedef struct can_message {
     uint8_t pdata[MAX_MESSAGE_SIZE];
-    uint32_t usz_max;
-    uint32_t usz_io;
-};
+    uint32_t usz;
+} can_message_t;
 
 struct socket_state {
     int32_t sockfd;
@@ -51,3 +53,5 @@ enum can_error can_socket_read(struct socket_state *psock_state,
 
 enum can_error can_socket_write(struct socket_state *psock_state,
                                 const struct can_message *pmsg);
+
+#endif // !__CAN_H__

@@ -69,13 +69,13 @@ int main(int argc, char **argv)
     signal(SIGINT, signal_handler);
     signal(SIGINT, signal_handler);
 
-    req.usz_max = MAX_MESSAGE_SIZE;
     while (1) {
         err = can_socket_read(psock_state, &req);
         if (CAN_NO_ERROR == err) {
-            uds_handle_msg(pstate, req.pdata, req.usz_io, resp.pdata,
-                           &resp.usz_io);
-            err = can_socket_write(psock_state, &resp);
+            uds_err = uds_handle_msg(pstate, req, &resp);
+            if (uds_err == UDS_NO_ERROR) { 
+              err = can_socket_write(psock_state, &resp);
+            }
         }
 
         usleep(10000);

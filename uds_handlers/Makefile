@@ -10,25 +10,46 @@ OBJS=../$(BINDIR)/$(TARGET_DIR)/diag_session_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/rdba_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/wrba_handler.o
+TESTS_DIR=tests
+TESTS_SRCDIR=src
+TESTS_OBJS=../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_bind.o \
+			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_calloc.o \
+			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_fcntl.o \
+			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_if_nametoindex.o \
+			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_socket.o \
+			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint.o
+WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc
 CXX=clang++
 CC=clang
 
-.PHONY: all clean install
+.PHONY: all clean install test
 
 all: ../$(BINDIR)/$(TARGET_DIR)/$(TARGET)
 
-$(BINDIR):
-	@echo " Creating $(TARGET_DIR)"
-	mkdir -p ../$(BINDIR)/$(TARGET_DIR)
+bin:
+	@echo " Creating build directory"
+	mkdir -p ../$(BINDIR)/$(TARGET)
 
-../$(BINDIR)/$(TARGET_DIR)/$(TARGET): $(OBJS) | $(BINDIR)
+tests_dir:
+	@echo " Creating tests directory"
+	mkdir -p ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)
+
+../$(BINDIR)/$(TARGET_DIR)/$(TARGET): $(OBJS) | bin
 	@echo " LD	std_handlers.so"
 	$(CC) -o $@ $^ -fPIC -shared
 
-../$(BINDIR)/$(TARGET_DIR)/%.o: $(SRCDIR)/%.c | $(BINDIR)
+../$(BINDIR)/$(TARGET_DIR)/%.o: $(SRCDIR)/%.c | bin
 	@echo " CC	$@"
 	$(CC) -c $< -o $@ -I $(INCDIR) -I ../uds_server/inc
 
+../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/%.o: $(TESTS_DIR)/$(TESTS_SRCDIR)/%.c | tests_dir
+	@echo " CC	$@"
+	$(CC) -c $< -o $@ -I ../uds_server/$(INCDIR) -I $(INCDIR) -I $(TESTS_DIR) -I ../deps/minunit
+
+test: ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o $(TESTS_OBJS) | tests_dir
+	@echo " LD	test_entrypoint"
+	$(CC) -o ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I ../uds_server/$(INCDIR) 
+
 clean:
 	@echo "Cleaning uds_handlers"
-	rm -f ../$(BINDIR)/$(TARGET_DIR)/*
+	rm -rf ../$(BINDIR)/$(TARGET_DIR)/*

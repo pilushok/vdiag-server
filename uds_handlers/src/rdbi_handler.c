@@ -40,7 +40,6 @@ static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
         goto err;
     }
 
-    printf("rdbi addr, usz: %u %u\n", uaddr, usz);
     ireadsz = read(memfd, pdata, usz);
     if (ireadsz < 0) {
         perror("memory read");
@@ -98,7 +97,6 @@ EXTERNC EXPORT uds_nrc_t uds_rdbi_setup(struct uds_state   *puds,
 
     // Check if the memory range is valid
     if (!__check_range(did_map->memory_address, did_map->data_size)) {
-        printf("__check_range\n");
         return NRC_REQUEST_OUT_OF_RANGE;
     }
 

@@ -31,7 +31,6 @@ EXTERNC EXPORT uds_tp_result_t uds_tp(uds_state_t *puds, uds_tp_params_t params)
     uds_tp_result_t res;
     res.rc    = NRC_POSITIVE_RESPONSE;
     res.usubfnc = params.usubfnc;
-    printf("res.usubfnc: %d\n", res.usubfnc);
     return res;
 }
 

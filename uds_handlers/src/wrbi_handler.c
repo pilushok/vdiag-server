@@ -39,8 +39,6 @@ static int32_t __write_memory(uint32_t uaddr, uint32_t usz, const uint8_t *pdata
         goto err;
     }
     
-    printf("wrbi pdata: %X %X\n", pdata[0], pdata[1]);
-    printf("addr, usz: %u %u\n", uaddr, usz);
     iwritesz = write(memfd, pdata, usz);
     if (iwritesz < 0) {
         perror("memory write");
@@ -86,13 +84,11 @@ EXTERNC EXPORT uds_nrc_t uds_wrbi_setup(struct uds_state   *puds,
 
     did = (req.pdata[1] << 8) | req.pdata[2];
     if (did > MAX_DID) {
-        printf("max did\n"); 
         return NRC_REQUEST_OUT_OF_RANGE;
     }
     did_map = &DATA_IDENTIFIER_MAP[did];
     
     if (!did_map->valid) {
-        printf("invalid did: %d\n", did);
         return NRC_REQUEST_OUT_OF_RANGE;
     }
 
@@ -103,7 +99,6 @@ EXTERNC EXPORT uds_nrc_t uds_wrbi_setup(struct uds_state   *puds,
 
     // Check if the memory range is valid
     if (!__check_range(did_map->memory_address, did_map->data_size)) {
-        printf("__check_range\n");
         return NRC_REQUEST_OUT_OF_RANGE;
     }
 

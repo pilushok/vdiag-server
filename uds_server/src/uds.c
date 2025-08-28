@@ -67,6 +67,7 @@ err:
 uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
                            struct can_message *presp)
 {
+    uint8_t usid;
     uds_nrc_t         rc;
     uds_rdba_result_t rdba_res;
     uds_rdba_params_t rdba_param;
@@ -90,10 +91,8 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         return UDS_ERROR_INVALID_PARAM;
     }
 
-    uint8_t service_id = req.pdata[0];
-    printf("handling message service id %u\n", service_id);
-
-    switch (service_id) {
+    usid = req.pdata[0];
+    switch (usid) {
 
     case UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
         dsc_res.rc = puds->dsc.setup(puds, req, &dsc_param);
@@ -151,7 +150,7 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
 
     default:
         presp->pdata[0] = UDS_NEGATIVE_RESPONSE;
-        presp->pdata[1] = service_id;
+        presp->pdata[1] = usid;
         presp->pdata[2] = NRC_SERVICE_NOT_SUPPORTED;
         return 3;
     }

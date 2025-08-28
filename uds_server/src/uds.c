@@ -24,97 +24,22 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
         *perr = UDS_ERROR_HANDLER_LIB_INIT;
         goto err;
     }
-    // puds->tester_present_handler =
-    //     (uds_tester_present_t)dlsym(puds->puds_impl,
-    //     "uds_tester_present");
-    // if (!puds->tester_present_handler) {
-    //     *perr = UDS_ERROR_HANDLER_INIT;
-    //     goto err;
-    // }
-    // tp
-    puds->tp.setup = (puds_tp_setup_t)dlsym(puds->puds_impl, "uds_tp_setup");
-    if (!puds->tp.setup) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
 
-    puds->tp.call = (puds_tp_t)dlsym(puds->puds_impl, "uds_tp");
-    if (!puds->tp.call) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
+#ifdef __TP_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, tp)
+#endif // __TP_DEF_H__
+  
+#ifdef __WRBA_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, wrba)
+#endif // __WRBA_DEF_H__
 
-    puds->tp.pack = (puds_tp_pack_t)dlsym(puds->puds_impl, "uds_tp_pack");
-    if (!puds->tp.pack) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
+#ifdef __RDBA_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, rdba)
+#endif // __RDBA_DEF_H__
 
-    // rdba
-    puds->rdba.setup =
-        (puds_rdba_setup_t)dlsym(puds->puds_impl, "uds_rdba_setup");
-    if (!puds->rdba.setup) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->rdba.call = (puds_rdba_t)dlsym(puds->puds_impl, "uds_rdba");
-    if (!puds->rdba.call) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->rdba.pack = (puds_rdba_pack_t)dlsym(puds->puds_impl, "uds_rdba_pack");
-    if (!puds->rdba.pack) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    // wrba
-    puds->wrba.setup =
-        (puds_wrba_setup_t)dlsym(puds->puds_impl, "uds_wrba_setup");
-    if (!puds->wrba.setup) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->wrba.call = (puds_wrba_t)dlsym(puds->puds_impl, "uds_wrba");
-    if (!puds->wrba.call) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->wrba.pack = (puds_wrba_pack_t)dlsym(puds->puds_impl, "uds_wrba_pack");
-    if (!puds->wrba.pack) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    // wrbi
-    puds->wrbi.setup =
-        (puds_wrbi_setup_t)dlsym(puds->puds_impl, "uds_wrbi_setup");
-    if (!puds->wrbi.setup) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->wrbi.call = (puds_wrbi_t)dlsym(puds->puds_impl, "uds_wrbi");
-    if (!puds->wrbi.call) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-
-    puds->wrbi.pack = (puds_wrbi_pack_t)dlsym(puds->puds_impl, "uds_wrbi_pack");
-    if (!puds->wrbi.pack) {
-        *perr = UDS_ERROR_HANDLER_INIT;
-        goto err;
-    }
-    // puds->write_by_address_handler = (uds_write_by_address_t)dlsym(
-    //     puds->puds_impl, "uds_write_data_by_address");
-    // if (!puds->write_by_address_handler) {
-    //     *perr = UDS_ERROR_HANDLER_INIT;
-    //     goto err;
-    // }
+#ifdef __WRIB_DEF_H__
+    INIT_UDS_HANDLER(puds, wrib, wrib)
+#endif // __WRIB_DEF_H__pp
 
     return puds;
 
@@ -143,7 +68,7 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
 
     uds_wrba_result_t wrba_res;
     uds_wrba_params_t wrba_param;
-  
+
     uds_wrbi_result_t wrbi_res;
     uds_wrbi_params_t wrbi_param;
 

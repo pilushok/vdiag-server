@@ -13,36 +13,56 @@
 #include "wrba_def.h"
 #include "wrbi_def.h"
 
-#define LOAD_UDS_HANDLER_SETUP(pstate, service_name, puds_impl)    \
-    pstate->service_name##_handle = (uds_##service_name##_t)dlsym( \
-        puds_impl->handlers_lib, "uds_" #service_name);            \
-    if (!pstate->service_name##_handler) {                         \
-        *perr = UDS_ERROR_HANDLER_INIT;                            \
-        goto err;                                                  \
+#define STRINGIFY(X) #X
+
+#define INIT_UDS_HANDLER_SETUP(puds, impl, handler)        \
+    puds->handler.setup = (puds_##handler##_setup_t)dlsym( \
+        puds->impl, STRINGIFY(uds_##handler##_setup));     \
+    if (!puds->handler.setup) {                            \
+        *perr = UDS_ERROR_HANDLER_INIT;                    \
+        goto err;                                          \
     }
 
-// -----------------------------------------------------------
-// typedef uds_error_t (*uds_tester_present_t)(struct uds_state *puds,
-//                                             const uint8_t    *preq,
-//                                             const uint32_t    ureq_len,
-//                                             uint8_t          *presp,
-//                                             uint32_t         *presp_len);
-// typedef uds_error_t (*uds_read_by_id_t)(const uint8_t *preq,
-//                                         const uint32_t ureq_len, uint8_t *presp,
-//                                         uint32_t *presp_len);
-// typedef uds_error_t (*uds_write_by_address_t)(struct uds_state *puds,
-//                                               const uint8_t    *preq,
-//                                               const uint32_t    ureq_sz,
-//                                               uint8_t          *presp,
-//                                               uint32_t         *presp_sz);
+#define INIT_UDS_HANDLER_CALL(puds, impl, handler)                            \
+    puds->handler.call =                                                      \
+        (puds_##handler##_t)dlsym(puds->puds_impl, STRINGIFY(uds_##handler)); \
+    if (!puds->handler.call) {                                                \
+        *perr = UDS_ERROR_HANDLER_INIT;                                       \
+        goto err;                                                             \
+    }
+
+#define INIT_UDS_HANDLER_PACK(puds, impl, handler)         \
+    puds->handler.pack = (puds_##handler##_pack_t)dlsym(   \
+        puds->puds_impl, STRINGIFY(uds_##handler##_pack)); \
+    if (!puds->handler.pack) {                             \
+        *perr = UDS_ERROR_HANDLER_INIT;                    \
+        goto err;                                          \
+    }
+
+#define INIT_UDS_HANDLER(puds, impl, handler)   \
+    INIT_UDS_HANDLER_SETUP(puds, impl, handler) \
+    INIT_UDS_HANDLER_CALL(puds, impl, handler) \
+    INIT_UDS_HANDLER_PACK(puds, impl, handler)
 
 typedef struct uds_state {
     void *puds_impl;
-    itp_t   tp;
+#ifdef __TP_DEF_H__
+    itp_t tp;
+#endif // __TP_DEF_H__
+
+#ifdef __RDBA_DEF_H__
     irdba_t rdba;
-    // uds_read_by_id_t       read_by_id_handler;
+#endif
+
+#ifdef __WRBA_DEF_H__
     iwrba_t wrba;
+#endif
+
+#ifdef __WRBI_DEF_H__
     iwrbi_t wrbi;
+#endif // __WRBI_DEF_H__
+
+    // uds_read_by_id_t       read_by_id_handler;
     uint32_t client_addr;
     uint8_t  session_type;
 } uds_state_t;

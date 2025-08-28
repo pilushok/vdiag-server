@@ -1,5 +1,5 @@
-#ifndef __wrbi_DEF_H__
-#define __wrbi_DEF_H__
+#ifndef __WRBI_DEF_H__
+#define __WRBI_DEF_H__
 
 #include "can.h"
 #include "uds_def.h"
@@ -35,4 +35,4 @@ typedef struct __interface_wrbi {
   puds_wrbi_pack_t pack;
 } iwrbi_t;
 
-#endif // __wrbi_DEF_H__
+#endif // __WRBI_DEF_H__

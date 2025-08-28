@@ -80,9 +80,11 @@ EXTERNC EXPORT uds_nrc_t uds_wrbi_setup(struct uds_state   *puds,
     // if (puds->security_level < REQUIRED_SECURITY_LEVEL_FOR_WRITE) {
     //     return NRC_SECURITY_ACCESS_DENIED;
     // }
+    if (puds->uses != EXTENDED_DIAGNOSTIC_SESSION) {
+        return NRC_SERVICE_NOT_SUPPORTED_IN_SESSION;
+    }
 
     did = (req.pdata[1] << 8) | req.pdata[2];
-
     if (did > MAX_DID) {
         printf("max did\n"); 
         return NRC_REQUEST_OUT_OF_RANGE;
@@ -108,10 +110,7 @@ EXTERNC EXPORT uds_nrc_t uds_wrbi_setup(struct uds_state   *puds,
     pparams->udid = did;
     pparams->uaddr = did_map->memory_address;
     pparams->usz = did_map->data_size;
-    // pparams->pdata = (uint8_t *)&req.pdata[3]; // Data starts after SID + DID
     memcpy(pparams->pdata, &req.pdata[3], pparams->usz);
-    // printf("wrbi pdata: %X %X\n", pparams->pdata[0], pparams->pdata[1]);
-    // printf("addr, usz: %u %u\n", pparams->uaddr, pparams->usz);
     return NRC_POSITIVE_RESPONSE;
 }
 

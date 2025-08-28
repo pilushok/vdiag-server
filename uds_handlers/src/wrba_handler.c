@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "wrba_handler.h"
+#include "dsc_def.h"
 
 #define MIN_MEM_ADDR 0x0
 #define MAX_MEM_ADDR 0xFFFF
@@ -38,7 +39,7 @@ static int32_t __write_memory(uint32_t uaddr, uint32_t usz,
         perror("memory seek");
         goto err;
     }
-  
+
     iwritesz = write(memfd, pdata, usz);
     if (iwritesz < 0) {
         perror("memory write");
@@ -78,6 +79,10 @@ EXTERNC EXPORT uds_nrc_t uds_wrba_setup(struct uds_state   *puds,
     // if (puds->security_level < REQUIRED_SECURITY_LEVEL_FOR_MEMORY_ACCESS) {
     //     return UDS_ERROR_HANDLER_INTERNAL;
     // }
+
+    if (puds->uses != EXTENDED_DIAGNOSTIC_SESSION) {
+        return NRC_SERVICE_NOT_SUPPORTED_IN_SESSION;
+    }
 
     // high and low nibbles define len of address and size
     usubfnc  = req.pdata[1];

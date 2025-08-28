@@ -10,7 +10,7 @@ typedef struct __wrbi_params{
     uint16_t udid;
     uint32_t uaddr;
     uint32_t usz;
-    const uint8_t *pdata;
+    uint8_t *pdata;
 } uds_wrbi_params_t;
 
 typedef struct {

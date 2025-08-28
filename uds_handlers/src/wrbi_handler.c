@@ -65,7 +65,7 @@ EXTERNC EXPORT uds_nrc_t uds_wrbi_setup(struct uds_state   *puds,
 {
     uint16_t did;
     did_mapping_t *did_map;
-    wrib_init_mapping(); 
+    init_mapping(); 
     pparams->pdata = (uint8_t *) calloc(4096 * sizeof(uint8_t), 1);
 
     if (!pparams || !puds) {

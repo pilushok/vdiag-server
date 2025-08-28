@@ -14,6 +14,6 @@ typedef struct {
 
 extern did_mapping_t DATA_IDENTIFIER_MAP[MAX_DID + 1];
 
-void wrib_init_mapping(void);
+void init_mapping(void);
 
 #endif // __DID_MAP_H__

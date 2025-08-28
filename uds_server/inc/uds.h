@@ -12,6 +12,7 @@
 #include "rdba_def.h"
 #include "wrba_def.h"
 #include "wrbi_def.h"
+#include "rdbi_def.h"
 
 #define STRINGIFY(X) #X
 
@@ -62,7 +63,10 @@ typedef struct uds_state {
     iwrbi_t wrbi;
 #endif // __WRBI_DEF_H__
 
-    // uds_read_by_id_t       read_by_id_handler;
+#ifdef __RDBI_DEF_H__
+    irdbi_t rdbi;
+#endif // __RDBI_DEF_H__
+      
     uint32_t client_addr;
     uint8_t  session_type;
 } uds_state_t;

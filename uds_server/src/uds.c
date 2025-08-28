@@ -28,7 +28,7 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
 #ifdef __TP_DEF_H__
     INIT_UDS_HANDLER(puds, puds_impl, tp)
 #endif // __TP_DEF_H__
-  
+
 #ifdef __WRBA_DEF_H__
     INIT_UDS_HANDLER(puds, puds_impl, wrba)
 #endif // __WRBA_DEF_H__
@@ -37,9 +37,13 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
     INIT_UDS_HANDLER(puds, puds_impl, rdba)
 #endif // __RDBA_DEF_H__
 
-#ifdef __WRIB_DEF_H__
-    INIT_UDS_HANDLER(puds, wrib, wrib)
-#endif // __WRIB_DEF_H__pp
+#ifdef __WRBI_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, wrbi)
+#endif // __WRBI_DEF_H__
+
+#ifdef __RDBI_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, rdbi)
+#endif // __RDBI_DEF_H__
 
     return puds;
 
@@ -72,6 +76,9 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
     uds_wrbi_result_t wrbi_res;
     uds_wrbi_params_t wrbi_param;
 
+    uds_rdbi_result_t rdbi_res;
+    uds_rdbi_params_t rdbi_param;
+
     if (req.usz < 1 || !presp || !puds) {
         return UDS_ERROR_INVALID_PARAM;
     }
@@ -85,8 +92,13 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         // return handle_diagnostic_session_control(request, response, context);
 
     case UDS_SID_READ_DATA_BY_IDENTIFIER:
-        break;
-        // return handle_read_data_by_id(request, response, context);
+        rdbi_res.rc = puds->rdbi.setup(puds, req, &rdbi_param);
+
+        if (rdbi_res.rc == NRC_POSITIVE_RESPONSE) {
+            rdbi_res = puds->rdbi.call(puds, rdbi_param);
+        }
+        puds->rdbi.pack(puds, rdbi_res, presp);
+        return UDS_NO_ERROR;
 
     case UDS_SID_READ_MEMORY_BY_ADDRESS:
         rdba_res.rc = puds->rdba.setup(puds, req, &rdba_param);
@@ -96,7 +108,6 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         }
         puds->rdba.pack(puds, rdba_res, presp);
         return UDS_NO_ERROR;
-        break;
 
     case UDS_SID_TESTER_PRESENT:
         tp_res.rc = puds->tp.setup(puds, req, &tp_param);
@@ -106,7 +117,6 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         }
         puds->tp.pack(puds, tp_res, presp);
         return UDS_NO_ERROR;
-        break;
 
     case UDS_SID_WRITE_MEMORY_BY_ADDRESS:
         wrba_res.rc = puds->wrba.setup(puds, req, &wrba_param);
@@ -116,7 +126,6 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         }
         puds->wrba.pack(puds, wrba_res, presp);
         return UDS_NO_ERROR;
-        break;
 
     case UDS_SID_WRITE_DATA_BY_IDENTIFIER:
         wrbi_res.rc = puds->wrbi.setup(puds, req, &wrbi_param);
@@ -127,7 +136,6 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
         puds->wrbi.pack(puds, wrbi_res, presp);
         free(wrbi_param.pdata);
         return UDS_NO_ERROR;
-        break;
 
     default:
         presp->pdata[0] = UDS_NEGATIVE_RESPONSE;

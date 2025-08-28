@@ -1,5 +1,5 @@
-#ifndef __wrbi_HANDLER_H__
-#define __wrbi_HANDLER_H__
+#ifndef __WRBI_HANDLER_H__
+#define __WRBI_HANDLER_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -21,4 +21,4 @@ EXTERNC EXPORT void uds_wrbi_pack(uds_state_t             *puds,
                                   const uds_wrbi_result_t res,
                                   struct can_message     *presp);
 
-#endif // __wrbi_HANDLER_H__
+#endif // __WRBI_HANDLER_H__

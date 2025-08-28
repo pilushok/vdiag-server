@@ -2,8 +2,9 @@
 
 did_mapping_t DATA_IDENTIFIER_MAP[MAX_DID + 1] = {0};
 
-void wrib_init_mapping(void)
+void init_mapping(void)
 {
+    // TODO: we need a mechanism to configure this dids
     // Initialize all DIDs as invalid first
     for (int i = 0; i <= MAX_DID; i++) {
         DATA_IDENTIFIER_MAP[i].valid = 0;

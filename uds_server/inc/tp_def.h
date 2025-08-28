@@ -1,9 +1,9 @@
 #ifndef __TP_DEF_H__
 #define __TP_DEF_H__
 
-#include "stdbool.h"
 #include "can.h"
 #include "uds_def.h"
+
 #define DEFAULT_SUBFUNCTION 0x00
 #define SUPPRESS_POS_RESPONSE_SUBFUNCTION 0x80
 

@@ -13,6 +13,7 @@
 #include "wrba_def.h"
 #include "wrbi_def.h"
 #include "rdbi_def.h"
+#include "dsc_def.h"
 
 #define STRINGIFY(X) #X
 
@@ -66,9 +67,13 @@ typedef struct uds_state {
 #ifdef __RDBI_DEF_H__
     irdbi_t rdbi;
 #endif // __RDBI_DEF_H__
+
+#ifdef __DSC_DEF_H__
+    idsc_t dsc;
+#endif // __DSC_DEF_H__
       
     uint32_t client_addr;
-    uint8_t  session_type;
+    uint8_t  uses;
 } uds_state_t;
 
 uds_state_t *uds_init(const char *handlers_lib, uds_error_t *perr);

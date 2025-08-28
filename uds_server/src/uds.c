@@ -45,6 +45,10 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
     INIT_UDS_HANDLER(puds, puds_impl, rdbi)
 #endif // __RDBI_DEF_H__
 
+#ifdef __DSC_DEF_H__
+    INIT_UDS_HANDLER(puds, puds_impl, dsc)
+#endif // __DSC_DEF_H__
+
     return puds;
 
 err:
@@ -79,6 +83,9 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
     uds_rdbi_result_t rdbi_res;
     uds_rdbi_params_t rdbi_param;
 
+    uds_dsc_result_t dsc_res;
+    uds_dsc_params_t dsc_param;
+
     if (req.usz < 1 || !presp || !puds) {
         return UDS_ERROR_INVALID_PARAM;
     }
@@ -87,9 +94,14 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
     printf("handling message service id %u\n", service_id);
 
     switch (service_id) {
+
     case UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
-        break;
-        // return handle_diagnostic_session_control(request, response, context);
+        dsc_res.rc = puds->dsc.setup(puds, req, &dsc_param);
+        if (dsc_res.rc == NRC_POSITIVE_RESPONSE) {
+            dsc_res = puds->dsc.call(puds, dsc_param);
+        }
+        puds->dsc.pack(puds, dsc_res, presp);
+        return UDS_NO_ERROR;
 
     case UDS_SID_READ_DATA_BY_IDENTIFIER:
         rdbi_res.rc = puds->rdbi.setup(puds, req, &rdbi_param);

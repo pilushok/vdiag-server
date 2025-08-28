@@ -5,7 +5,7 @@ TARGET=std_handlers.so
 TARGET_DIR=uds_handlers
 INCDIR=inc
 SRCDIR=src
-OBJS=../$(BINDIR)/$(TARGET_DIR)/diag_session_handler.o \
+OBJS=../$(BINDIR)/$(TARGET_DIR)/dsc_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/rdbi_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/rdba_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o \

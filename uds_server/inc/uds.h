@@ -11,6 +11,7 @@
 #include "tp_def.h"
 #include "rdba_def.h"
 #include "wrba_def.h"
+#include "wrbi_def.h"
 
 #define LOAD_UDS_HANDLER_SETUP(pstate, service_name, puds_impl)    \
     pstate->service_name##_handle = (uds_##service_name##_t)dlsym( \
@@ -41,6 +42,7 @@ typedef struct uds_state {
     irdba_t rdba;
     // uds_read_by_id_t       read_by_id_handler;
     iwrba_t wrba;
+    iwrbi_t wrbi;
     uint32_t client_addr;
     uint8_t  session_type;
 } uds_state_t;

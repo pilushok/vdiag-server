@@ -89,6 +89,26 @@ struct uds_state *uds_init(const char *puds_impl, uds_error_t *perr)
         *perr = UDS_ERROR_HANDLER_INIT;
         goto err;
     }
+
+    // wrbi
+    puds->wrbi.setup =
+        (puds_wrbi_setup_t)dlsym(puds->puds_impl, "uds_wrbi_setup");
+    if (!puds->wrbi.setup) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    puds->wrbi.call = (puds_wrbi_t)dlsym(puds->puds_impl, "uds_wrbi");
+    if (!puds->wrbi.call) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
+
+    puds->wrbi.pack = (puds_wrbi_pack_t)dlsym(puds->puds_impl, "uds_wrbi_pack");
+    if (!puds->wrbi.pack) {
+        *perr = UDS_ERROR_HANDLER_INIT;
+        goto err;
+    }
     // puds->write_by_address_handler = (uds_write_by_address_t)dlsym(
     //     puds->puds_impl, "uds_write_data_by_address");
     // if (!puds->write_by_address_handler) {
@@ -120,9 +140,12 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
 
     uds_tp_result_t tp_res;
     uds_tp_params_t tp_param;
-    
+
     uds_wrba_result_t wrba_res;
     uds_wrba_params_t wrba_param;
+  
+    uds_wrbi_result_t wrbi_res;
+    uds_wrbi_params_t wrbi_param;
 
     if (req.usz < 1 || !presp || !puds) {
         return UDS_ERROR_INVALID_PARAM;
@@ -167,6 +190,17 @@ uds_error_t uds_handle_msg(struct uds_state *puds, const struct can_message req,
             wrba_res = puds->wrba.call(puds, wrba_param);
         }
         puds->wrba.pack(puds, wrba_res, presp);
+        return UDS_NO_ERROR;
+        break;
+
+    case UDS_SID_WRITE_DATA_BY_IDENTIFIER:
+        wrbi_res.rc = puds->wrbi.setup(puds, req, &wrbi_param);
+
+        if (wrbi_res.rc == NRC_POSITIVE_RESPONSE) {
+            wrbi_res = puds->wrbi.call(puds, wrbi_param);
+        }
+        puds->wrbi.pack(puds, wrbi_res, presp);
+        free(wrbi_param.pdata);
         return UDS_NO_ERROR;
         break;
 

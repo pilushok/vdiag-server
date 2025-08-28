@@ -9,7 +9,9 @@ OBJS=../$(BINDIR)/$(TARGET_DIR)/diag_session_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/rdbi_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/rdba_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o \
-		 ../$(BINDIR)/$(TARGET_DIR)/wrba_handler.o
+		 ../$(BINDIR)/$(TARGET_DIR)/wrba_handler.o \
+		 ../$(BINDIR)/$(TARGET_DIR)/wrbi_handler.o \
+		 ../$(BINDIR)/$(TARGET_DIR)/did_map.o 
 TESTS_DIR=tests
 TESTS_SRCDIR=src
 TESTS_OBJS=../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_bind.o \
@@ -40,7 +42,7 @@ tests_dir:
 
 ../$(BINDIR)/$(TARGET_DIR)/%.o: $(SRCDIR)/%.c | bin
 	@echo " CC	$@"
-	$(CC) -c $< -o $@ -I $(INCDIR) -I ../uds_server/inc
+	$(CC) -c $< -o $@ -I $(INCDIR) -I ../uds_server/inc -fPIC
 
 ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/%.o: $(TESTS_DIR)/$(TESTS_SRCDIR)/%.c | tests_dir
 	@echo " CC	$@"

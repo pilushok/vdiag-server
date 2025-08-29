@@ -1,4 +1,4 @@
-#include "mocks/mock_fcntl.h"
+#include "mock_fcntl.h"
 
 int __wrap_fcntl(int fd, int cmd, ...)
 {

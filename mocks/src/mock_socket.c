@@ -1,4 +1,4 @@
-#include "mocks/mock_socket.h"
+#include "mock_socket.h"
 
 extern enum test_socket_status G_SOCKET_STATUS;
 extern int                     G_MOCK_SOCKFD;

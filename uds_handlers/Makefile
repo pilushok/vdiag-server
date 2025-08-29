@@ -14,12 +14,12 @@ OBJS=../$(BINDIR)/$(TARGET_DIR)/dsc_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/did_map.o 
 TESTS_DIR=tests
 TESTS_SRCDIR=src
-TESTS_OBJS=../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_bind.o \
-			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_calloc.o \
-			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_fcntl.o \
-			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_if_nametoindex.o \
-			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/mock_socket.o \
-			../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint.o
+MOCK_OBJS=../$(BINDIR)/mocks/mock_bind.o \
+			../$(BINDIR)/mocks/mock_calloc.o \
+			../$(BINDIR)/mocks/mock_fcntl.o \
+			../$(BINDIR)/mocks/mock_if_nametoindex.o \
+			../$(BINDIR)/mocks/mock_socket.o 
+TESTS_OBJS =../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint.o
 WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc
 CXX=clang++
 CC=clang
@@ -48,7 +48,7 @@ tests_dir:
 	@echo " CC	$@"
 	$(CC) -c $< -o $@ -I ../uds_server/$(INCDIR) -I $(INCDIR) -I $(TESTS_DIR) -I ../deps/minunit
 
-test: ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o $(TESTS_OBJS) | tests_dir
+test: $(OBJS) $(TESTS_OBJS) $(MOCK_OBJS) | tests_dir
 	@echo " LD	test_entrypoint"
 	$(CC) -o ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I ../uds_server/$(INCDIR) 
 

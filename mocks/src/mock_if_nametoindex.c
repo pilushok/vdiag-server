@@ -1,4 +1,4 @@
-#include "mocks/mock_if_nametoindex.h"
+#include "mock_if_nametoindex.h"
 
 extern enum test_if_nametoindex_status G_IF_NAMETOINDEX_STATUS;
 extern int                             G_MOCK_IFINDEX;

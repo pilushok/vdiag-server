@@ -1,4 +1,4 @@
-#include "mocks/mock_bind.h"
+#include "mock_bind.h"
 
 int __wrap_bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {

@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include "uds_def.h"
 #include "can.h"
-#include "mocks/mock_socket.h"
-#include "mocks/mock_bind.h"
-#include "mocks/mock_calloc.h"
-#include "mocks/mock_fcntl.h"
-#include "mocks/mock_if_nametoindex.h"
+#include "mock_socket.h"
+#include "mock_bind.h"
+#include "mock_calloc.h"
+#include "mock_fcntl.h"
+#include "mock_if_nametoindex.h"
 #include "minunit.h"
 
 enum test_socket_status         G_SOCKET_STATUS;

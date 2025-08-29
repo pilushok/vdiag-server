@@ -1,4 +1,4 @@
-#include "mocks/mock_calloc.h"
+#include "mock_calloc.h"
 
 void *__wrap_calloc(size_t nmemb, size_t size)
 {

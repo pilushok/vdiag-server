@@ -18,9 +18,14 @@ MOCK_OBJS=../$(BINDIR)/mocks/mock_bind.o \
 			../$(BINDIR)/mocks/mock_calloc.o \
 			../$(BINDIR)/mocks/mock_fcntl.o \
 			../$(BINDIR)/mocks/mock_if_nametoindex.o \
+			../$(BINDIR)/mocks/mock_write.o \
+			../$(BINDIR)/mocks/mock_read.o \
+			../$(BINDIR)/mocks/mock_open.o \
+			../$(BINDIR)/mocks/mock_lseek.o \
+			../$(BINDIR)/mocks/mock_close.o \
 			../$(BINDIR)/mocks/mock_socket.o 
 TESTS_OBJS =../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint.o
-WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc
+WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc,--wrap=close,--wrap=open,--wrap=read,--wrap=lseek,--wrap=write
 CXX=clang++
 CC=clang
 

@@ -63,8 +63,8 @@ MU_TEST(test_wrba_complete_flow_success)
               "Data should match");
 
     res = uds_wrba(&puds, params);
+    
     mu_assert(res.rc == NRC_POSITIVE_RESPONSE, "Service call should succeed");
-
     uds_wrba_pack(&puds, res, &resp);
     mu_assert(resp.usz == 1, "Response size should be 1 byte");
     mu_assert(resp.pdata[0] == 0x7D,

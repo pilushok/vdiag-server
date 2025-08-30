@@ -7,10 +7,11 @@
 #include "mock_if_nametoindex.h"
 #include "mock_fcntl.h"
 
-// test suites 
+// test suites
 #include "suites/test_tp_handler.h"
 #include "suites/test_dsc_handler.h"
 #include "suites/test_wrba_handler.h"
+#include "suites/test_rdba_handler.h"
 
 int main()
 {

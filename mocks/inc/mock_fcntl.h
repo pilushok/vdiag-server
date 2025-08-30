@@ -6,6 +6,7 @@ enum test_fcntl_status {
   FCNTL_NO_ERROR = 0,
   FCNTL_FAIL = 1
 };
+
 extern enum test_fcntl_status G_FCNTL_STATUS;
 
 int __real_fcntl(int fd, int cmd, ...);

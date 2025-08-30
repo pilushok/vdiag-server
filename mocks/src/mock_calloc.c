@@ -1,5 +1,7 @@
 #include "mock_calloc.h"
 
+enum test_calloc_status G_CALLOC_STATUS;
+
 void *__wrap_calloc(size_t nmemb, size_t size)
 {
     switch (G_CALLOC_STATUS) {

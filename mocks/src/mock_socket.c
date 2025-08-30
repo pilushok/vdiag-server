@@ -1,7 +1,7 @@
 #include "mock_socket.h"
 
-extern enum test_socket_status G_SOCKET_STATUS;
-extern int                     G_MOCK_SOCKFD;
+enum test_socket_status G_SOCKET_STATUS;
+int                     G_MOCK_SOCKFD;
 
 int __wrap_socket(int domain, int type, int protocol)
 {

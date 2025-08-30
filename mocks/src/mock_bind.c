@@ -1,5 +1,7 @@
 #include "mock_bind.h"
 
+enum test_bind_status G_BIND_STATUS;
+
 int __wrap_bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
     switch (G_BIND_STATUS) {

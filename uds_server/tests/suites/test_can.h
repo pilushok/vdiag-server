@@ -9,13 +9,13 @@
 #include "mock_if_nametoindex.h"
 #include "minunit.h"
 
-enum test_socket_status         G_SOCKET_STATUS;
-int                             G_MOCK_SOCKFD;
-enum test_bind_status           G_BIND_STATUS;
-enum test_calloc_status         G_CALLOC_STATUS;
-enum test_if_nametoindex_status G_IF_NAMETOINDEX_STATUS;
-int                             G_MOCK_IFINDEX;
-enum test_fcntl_status          G_FCNTL_STATUS;
+// enum test_socket_status         G_SOCKET_STATUS;
+// int                             G_MOCK_SOCKFD;
+// enum test_bind_status           G_BIND_STATUS;
+// enum test_calloc_status         G_CALLOC_STATUS;
+// enum test_if_nametoindex_status G_IF_NAMETOINDEX_STATUS;
+// int                             G_MOCK_IFINDEX;
+// enum test_fcntl_status          G_FCNTL_STATUS;
 
 void can_isotp_setup(void)
 {}

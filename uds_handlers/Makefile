@@ -26,7 +26,7 @@ CC=clang
 
 .PHONY: all clean install test
 
-all: ../$(BINDIR)/$(TARGET_DIR)/$(TARGET)
+all: ../$(BINDIR)/$(TARGET_DIR)/$(TARGET) test
 
 bin:
 	@echo " Creating build directory"
@@ -46,11 +46,11 @@ tests_dir:
 
 ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/%.o: $(TESTS_DIR)/$(TESTS_SRCDIR)/%.c | tests_dir
 	@echo " CC	$@"
-	$(CC) -c $< -o $@ -I ../uds_server/$(INCDIR) -I $(INCDIR) -I $(TESTS_DIR) -I ../deps/minunit
+	$(CC) -c $< -o $@ -I ../uds_server/$(INCDIR) -I $(INCDIR) -I $(TESTS_DIR) -I ../deps/minunit -I ../mocks/inc/
 
 test: $(OBJS) $(TESTS_OBJS) $(MOCK_OBJS) | tests_dir
 	@echo " LD	test_entrypoint"
-	$(CC) -o ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I ../uds_server/$(INCDIR) 
+	$(CC) -o ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I ../uds_server/$(INCDIR) -I ../mocks/inc/ 
 
 clean:
 	@echo "Cleaning uds_handlers"

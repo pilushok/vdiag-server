@@ -1,7 +1,7 @@
 #include "mock_if_nametoindex.h"
 
-extern enum test_if_nametoindex_status G_IF_NAMETOINDEX_STATUS;
-extern int                             G_MOCK_IFINDEX;
+enum test_if_nametoindex_status G_IF_NAMETOINDEX_STATUS;
+int                             G_MOCK_IFINDEX;
 
 int __wrap_if_nametoindex(const char *ifname)
 {

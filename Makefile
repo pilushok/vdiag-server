@@ -1,4 +1,4 @@
-SUBDIRS := uds_server uds_handlers  
+SUBDIRS := mocks uds_server uds_handlers 
 
 # build environment
 export BINDIR ?= bin

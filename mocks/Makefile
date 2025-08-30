@@ -5,6 +5,11 @@ OBJS=../$(BINDIR)/$(TARGET)/mock_bind.o \
 			../$(BINDIR)/$(TARGET)/mock_calloc.o \
 			../$(BINDIR)/$(TARGET)/mock_fcntl.o \
 			../$(BINDIR)/$(TARGET)/mock_if_nametoindex.o \
+			../$(BINDIR)/$(TARGET)/mock_write.o \
+			../$(BINDIR)/$(TARGET)/mock_read.o \
+			../$(BINDIR)/$(TARGET)/mock_open.o \
+			../$(BINDIR)/$(TARGET)/mock_lseek.o \
+			../$(BINDIR)/$(TARGET)/mock_close.o \
 			../$(BINDIR)/$(TARGET)/mock_socket.o 
 WRAPS=-Wl,--wrap=fcntl,--wrap=socket,--wrap=bind,--wrap=if_nametoindex,--wrap=calloc
 CXX=clang++

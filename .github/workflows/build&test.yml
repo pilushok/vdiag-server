@@ -38,9 +38,12 @@ jobs:
         name: built-binary
         path: ./
 
+    - name: List downloaded files (for debugging)
+      run: ls -la bin/
+      
     - name: Run uds_server tests
-      run: /home/runner/work/${{ github.event.repository.name }}/bin/uds_server/tests/test_entrypoint
+      run: ./bin/uds_server/tests/test_entrypoint
 
     - name: Run uds_handlers tests
-      run: /home/runner/work/${{ github.event.repository.name }}/bin/uds_handlers/tests/test_entrypoint
+      run: ./bin/uds_handlers/tests/test_entrypoint
     

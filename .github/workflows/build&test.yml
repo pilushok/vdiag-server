@@ -38,12 +38,13 @@ jobs:
         name: built-binary
         path: bin/
 
-    - name: List downloaded files (for debugging)
-      run: ls -la bin/
-      
     - name: Run uds_server tests
-      run: ./bin/uds_server/tests/test_entrypoint
+      run: |
+        chmod +x ./bin/uds_server/tests/test_entrypoint
+        ./bin/uds_server/tests/test_entrypoint
 
     - name: Run uds_handlers tests
-      run: ./bin/uds_handlers/tests/test_entrypoint
+      run: |
+        chmod +x ./bin/uds_handlers/tests/test_entrypoint
+        ./bin/uds_handlers/tests/test_entrypoint
     

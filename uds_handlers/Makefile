@@ -35,7 +35,7 @@ all: ../$(BINDIR)/$(TARGET_DIR)/$(TARGET) test
 
 bin:
 	@echo " Creating build directory"
-	mkdir -p ../$(BINDIR)/$(TARGET)
+	mkdir -p ../$(BINDIR)/$(TARGET_DIR)
 
 tests_dir:
 	@echo " Creating tests directory"

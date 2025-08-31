@@ -12,8 +12,7 @@ off_t __wrap_lseek(int fd, off_t offset, int whence)
 {
     switch (G_LSEEK_STATUS) {
     case LSEEK_NO_ERROR:
-        G_MOCK_LSEEK_RESULT = offset;
-        return __real_lseek(fd, offset, whence);
+        return offset;
 
     case LSEEK_ERROR:
         errno               = EINVAL;

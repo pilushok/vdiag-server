@@ -54,8 +54,9 @@ MU_TEST(test_wrba_complete_flow_success)
     memcpy(resp.pdata, resp_raw, sizeof(resp_raw));
     resp.usz = 0;
 
+    G_OPEN_STATUS  = OPEN_SPEC;
     G_WRITE_STATUS = WRITE_NO_ERROR;
-    rc = uds_wrba_setup(&puds, req, &params);
+    rc             = uds_wrba_setup(&puds, req, &params);
     mu_assert(rc == NRC_POSITIVE_RESPONSE, "Setup should succeed");
     mu_assert(params.uaddr == 0x1000, "Address should be 0x1000");
     mu_assert(params.usz == 4, "Size should be 4 bytes");
@@ -63,7 +64,7 @@ MU_TEST(test_wrba_complete_flow_success)
               "Data should match");
 
     res = uds_wrba(&puds, params);
-    
+
     mu_assert(res.rc == NRC_POSITIVE_RESPONSE, "Service call should succeed");
     uds_wrba_pack(&puds, res, &resp);
     mu_assert(resp.usz == 1, "Response size should be 1 byte");
@@ -78,7 +79,7 @@ MU_TEST(test_wrba_error_flow_open_failure)
     uds_wrba_result_t res;
     can_message_t     req, resp;
     uds_nrc_t         rc;
-    puds.uses = EXTENDED_DIAGNOSTIC_SESSION;
+    puds.uses           = EXTENDED_DIAGNOSTIC_SESSION;
     uint8_t req_raw[10] = {UDS_SID_WRITE_MEMORY_BY_ADDRESS,
                            0x22,
                            0x10,
@@ -98,7 +99,7 @@ MU_TEST(test_wrba_error_flow_open_failure)
     resp.usz = 0;
 
     G_OPEN_STATUS = OPEN_ERROR;
-    rc = uds_wrba_setup(&puds, req, &params);
+    rc            = uds_wrba_setup(&puds, req, &params);
     mu_assert(rc == NRC_POSITIVE_RESPONSE, "Setup should succeed");
 
     res = uds_wrba(&puds, params);
@@ -122,17 +123,17 @@ MU_TEST(test_wrba_error_flow_wrong_session)
     uds_wrba_result_t res;
     can_message_t     req, resp;
     uds_nrc_t         rc;
-    puds.uses = DEFAULT_SESSION;
-    uint8_t req_raw[10] = {UDS_SID_WRITE_MEMORY_BY_ADDRESS,
-                           0x22,
-                           0x10,
-                           0x00,
-                           0x00,
-                           0x04,
-                           0xAA,
-                           0xBB,
-                           0xCC,
-                           0xDD};
+    puds.uses            = DEFAULT_SESSION;
+    uint8_t req_raw[10]  = {UDS_SID_WRITE_MEMORY_BY_ADDRESS,
+                            0x22,
+                            0x10,
+                            0x00,
+                            0x00,
+                            0x04,
+                            0xAA,
+                            0xBB,
+                            0xCC,
+                            0xDD};
     uint8_t resp_raw[10] = {0};
     memcpy(req.pdata, req_raw, sizeof(req_raw));
     req.usz = sizeof(req_raw);
@@ -165,8 +166,7 @@ MU_TEST(test_wrba_error_flow_short_message)
     puds.uses = EXTENDED_DIAGNOSTIC_SESSION;
 
     uint8_t req_raw[6] = {
-        UDS_SID_WRITE_MEMORY_BY_ADDRESS, 0x22, 0x10, 0x00, 0x00, 0x04
-    };
+        UDS_SID_WRITE_MEMORY_BY_ADDRESS, 0x22, 0x10, 0x00, 0x00, 0x04};
     uint8_t resp_raw[10] = {0};
     memcpy(req.pdata, req_raw, sizeof(req_raw));
     req.usz = sizeof(req_raw);

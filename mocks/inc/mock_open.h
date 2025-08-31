@@ -4,7 +4,8 @@
 enum test_open_status {
     OPEN_NO_ERROR,
     OPEN_ERROR,
-    OPEN_ACCESS_DENIED
+    OPEN_ACCESS_DENIED,
+    OPEN_SPEC,
 };
 
 extern enum test_open_status G_OPEN_STATUS;

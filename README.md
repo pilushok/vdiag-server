@@ -25,14 +25,39 @@ The VDS provides a complete simulation environment for:
 | 0x2E | Write Data By Identifier | ✅ Implemented | Write data using DIDs |
 | 0x3D | Write Memory By Address | ✅ Implemented | Direct memory write access |
 
-## 🏗️ Architecture Overview
+## UDS Handlers
 
-Virtual Diagnostic Server (VDS)
+Our service handlers are designed as fully modular plugins, providing maximum flexibility and future-proofing for evolving transport layer requirements.
 
-├── 🔌 Transport Layer (CAN ISO-TP)
+Request Processing Pipeline
+───────────────────────────────────────────────
+  CAN Frame Received
+     │
+     ↓ Setup Phase (Validation & Parsing)
+     │   → Parameter validation
+     │   → Security/session checks  
+     │   → Data extraction
+     │
+     ↓ Execution Phase (Business Logic)
+     │   → Memory operations
+     │   → Data processing
+     │   → State updates
+     │
+     ↓ Pack Phase (Response Formatting)
+     │   → Positive response formatting
+     │   → Negative response generation
+     │   → Memory cleanup
+     │
+     ↓ CAN Response Transmission
+───────────────────────────────────────────────
 
-├── ⚡Protocol Handler (UDS)
+## Upcoming Features
+🔜 Diagnostic Trouble Code (DTC) Handling - Implement full DTC management including reading, clearing, and status monitoring capabilities (0x19)
 
-├── 💾 Memory Emulation
+🔜 Security Access Services - Develop comprehensive security access control with authentication and encryption mechanisms (0x27)
 
-└── 📊 Session Management
+🔜 InputOutput Control Implementation - Add support for vehicle I/O control and manipulation services (0x2F)
+
+🔜 Routine Services - Implement automated routine execution and control capabilities (0x31)
+
+🔜 Interchangeable Transport Layer - Create abstract transport interface supporting multiple protocols (CAN, Ethernet/DoIP, etc.)

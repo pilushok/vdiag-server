@@ -1,7 +1,7 @@
 # 🚗 Virtual Diagnostic Server (VDS)
 
-![Build](https://github.com/Pils48/virtual_ecu/actions/workflows/build-test.yml/badge.svg?label=build)
-![Tests](https://github.com/Pils48/virtual_ecu/actions/workflows/build-test.yml/badge.svg?label=tests)
+[![Build](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=build&logo=github)](https://github.com/Pils48/virtual_ecu/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=tests&logo=github)](https://github.com/Pils48/virtual_ecu/actions)
 
 ## 📋 Project Description
 

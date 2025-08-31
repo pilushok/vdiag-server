@@ -39,3 +39,6 @@ Our service handlers are designed as fully modular plugins, providing maximum fl
 🔜 Routine Services - Implement automated routine execution and control capabilities (0x31)
 
 🔜 Interchangeable Transport Layer - Create abstract transport interface supporting multiple protocols (Ethernet/DoIP, K-Line, etc.)
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Pils48/virtual_ecu/blob/README-CREATION/LICENSE) file for full details.

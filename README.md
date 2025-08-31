@@ -29,28 +29,6 @@ The VDS provides a complete simulation environment for:
 
 Our service handlers are designed as fully modular plugins, providing maximum flexibility and future-proofing for evolving transport layer requirements.
 
-Request Processing Pipeline
-───────────────────────────────────────────────
-  CAN Frame Received
-     │
-     ↓ Setup Phase (Validation & Parsing)
-     │   → Parameter validation
-     │   → Security/session checks  
-     │   → Data extraction
-     │
-     ↓ Execution Phase (Business Logic)
-     │   → Memory operations
-     │   → Data processing
-     │   → State updates
-     │
-     ↓ Pack Phase (Response Formatting)
-     │   → Positive response formatting
-     │   → Negative response generation
-     │   → Memory cleanup
-     │
-     ↓ CAN Response Transmission
-───────────────────────────────────────────────
-
 ## Upcoming Features
 🔜 Diagnostic Trouble Code (DTC) Handling - Implement full DTC management including reading, clearing, and status monitoring capabilities (0x19)
 

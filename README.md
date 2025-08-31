@@ -1,7 +1,7 @@
 # 🚗 Virtual Diagnostic Server (VDS)
 
-[![Build](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=build&logo=github)](https://github.com/Pils48/virtual_ecu/actions)
-[![Tests](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=tests&logo=github)](https://github.com/Pils48/virtual_ecu/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=build&logo=github)](https://github.com/Pils48/virtual_ecu/actions/workflows/build&test.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/Pils48/virtual_ecu/build-test.yml?label=tests&logo=github)](https://github.com/Pils48/virtual_ecu/actions/workflows/build&test.yml)
 
 ## 📋 Project Description
 
@@ -29,7 +29,11 @@ The VDS provides a complete simulation environment for:
 ## 🏗️ Architecture Overview
 
 Virtual Diagnostic Server (VDS)
+
 ├── 🔌 Transport Layer (CAN ISO-TP)
+
 ├── ⚡Protocol Handler (UDS)
+
 ├── 💾 Memory Emulation
+
 └── 📊 Session Management

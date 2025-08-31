@@ -38,4 +38,4 @@ Our service handlers are designed as fully modular plugins, providing maximum fl
 
 🔜 Routine Services - Implement automated routine execution and control capabilities (0x31)
 
-🔜 Interchangeable Transport Layer - Create abstract transport interface supporting multiple protocols (CAN, Ethernet/DoIP, etc.)
+🔜 Interchangeable Transport Layer - Create abstract transport interface supporting multiple protocols (Ethernet/DoIP, K-Line, etc.)

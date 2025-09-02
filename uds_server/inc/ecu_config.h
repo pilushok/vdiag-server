@@ -46,6 +46,10 @@ typedef struct {
     log_config_t       logging;
 } ecu_config_t;
 
+int32_t create_cfgdir(const char *cpath);
+
+int32_t create_memfile(const char *cname, uint32_t usz);
+
 int32_t parse_config(const char *filename, ecu_config_t *config);
 
 void print_config(const ecu_config_t *config);

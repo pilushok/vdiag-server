@@ -16,15 +16,24 @@
 #include <ctype.h>
 
 #define CAN_TIMEOUT 1000
-#define INTERFACE_NAME "vcan0"
-#define WELCOME_MESSAGE             \
-    ("Virtual UDS Server v0.0.0\n"  \
-     "Powered by Nikita Piliugin\n" \
+#define CONFIGS_DEFAULT_DIR ".local/vds/state"
+#define WELCOME_MESSAGE                   \
+    ("Virtual Diagnostic Server v1.0.0\n" \
+     "Powered by Nikita Piliugin\n"       \
      "Simulating ISO 14229 over CAN (UDS)\n")
 
 // Global variables
 static struct socket_state *psock_state = NULL;
 static uds_state_t         *pstate      = NULL;
+
+static const char *get_home()
+{
+    const char *home = getenv("HOME");
+    if (home != NULL && home[0] != '\0') {
+        return home;
+    }
+    return NULL;
+}
 
 void uds_server_stop()
 {
@@ -47,22 +56,43 @@ int main(int argc, char **argv)
     uint32_t           urx, utx;
     ecu_config_t       ecucfg;
     int32_t            ierr;
-
-    // if (argc < 4) {
-    //     printf("Invalid uds_server call. Try uds_server <handlers_lib_path> "
-    //            "<can_tx_id> <can_rx_id>\n");
-    //     return EXIT_FAILURE;
-    // }
-    ierr = parse_config("/home/harg/dev/virtual_ecu/bin/state/configs/test.ini", &ecucfg);
-    if (ierr < 0) {
-        printf("Parse error of config\n");
+    const char        *chome;
+    char               cfgdir[256];
+    chome = get_home();
+    if (chome == NULL) {
+        printf("failed to read HOME variable from env\n");
     }
-    print_config(&ecucfg);
+    snprintf(cfgdir, sizeof(cfgdir), "%s/%s", chome, CONFIGS_DEFAULT_DIR);
+
+    if (argc < 2) {
+        printf("Invalid uds_server call. Try uds_server "
+               "<absolute_path_to_config>\n");
+        return EXIT_FAILURE;
+    }
+
+    ierr = parse_config(argv[1], &ecucfg);
+    if (ierr < 0) {
+        printf("Error parsing config from file %s\n", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    ierr = create_cfgdir(cfgdir);
+    if (ierr < 0) {
+        printf("Unable to create configs directory %s\n", cfgdir);
+        return EXIT_FAILURE;
+    }
+
+    ierr = create_memfile(ecucfg.memory.file_path,
+                          ecucfg.memory.end_addr - ecucfg.memory.start_addr);
+    if (ierr < 0) {
+        printf("failed to create ecu memory file\n");
+        return EXIT_FAILURE;
+    }
 
     printf(WELCOME_MESSAGE);
     // TODO: need to implement and validation of addresses
-    psock_state =
-        can_socket_open(ecucfg.can.interface, ecucfg.can.tx_id, ecucfg.can.rx_id, &err);
+    psock_state = can_socket_open(ecucfg.can.interface, ecucfg.can.tx_id,
+                                  ecucfg.can.rx_id, &err);
     if (!psock_state) {
         return EXIT_FAILURE;
     }

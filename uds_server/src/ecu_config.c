@@ -5,6 +5,62 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/stat.h>
+
+int32_t create_cfgdir(const char *cpath)
+{
+    struct stat st;
+
+    if (stat(cpath, &st) == 0) {
+        if (S_ISDIR(st.st_mode)) {
+            return 0; 
+        } else {
+            fprintf(stderr, "Error: %s exists but is not a directory\n", cpath);
+            return -1;
+        }
+    }
+
+    if (mkdir(cpath, 0755) == 0) {
+        return 0;
+    }
+
+    perror("Error creating directory");
+    return -1;
+}
+
+int32_t create_memfile(const char *cname, uint32_t usz)
+{
+    FILE *fd = fopen(cname, "ab+");
+    if (!fd) {
+        perror("Failed to open memfile");
+        return -1;
+    }
+
+    fseek(fd, 0, SEEK_END);
+    long current_size = ftell(fd);
+
+    if (current_size < usz) {
+        size_t bytes_needed = usz - current_size;
+        char  *zeros        = calloc(1, bytes_needed);
+        if (!zeros) {
+            fclose(fd);
+            perror("Memory allocation failed");
+            return -1;
+        }
+
+        size_t written = fwrite(zeros, 1, bytes_needed, fd);
+        free(zeros);
+
+        if (written != bytes_needed) {
+            fclose(fd);
+            perror("Failed to write to file");
+            return -1;
+        }
+    }
+
+    fclose(fd);
+    return 0;
+}
 
 static uint32_t parse_hex(const char *str)
 {
@@ -46,7 +102,7 @@ static int32_t handler(void *user, const char *section, const char *name,
             strncpy(config->can.protocol, value, sizeof(config->can.protocol));
         }
     }
-    
+
     // UDS section
     if (strcasecmp(section, "uds") == 0) {
         if (strcasecmp(name, "impl") == 0) {
@@ -81,7 +137,8 @@ static int32_t handler(void *user, const char *section, const char *name,
             }
 
             if (i == 3) {
-                config->data_identifiers[config->did_count].udid = parse_hex(name);
+                config->data_identifiers[config->did_count].udid =
+                    parse_hex(name);
                 strncpy(config->did_names[config->did_count], name,
                         sizeof(config->did_names[0]));
                 config->data_identifiers[config->did_count].address =

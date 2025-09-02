@@ -58,6 +58,9 @@ test: $(OBJS) $(MOCK_OBJS) $(TESTS_OBJS) | tests_dir
 	@echo " LD	test_entrypoint"
 	$(CC) -o ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)/test_entrypoint $^ -Wall -Wextra $(WRAPS) -I $(TESTS_DIR) -I ../deps/minunit -I $(INCDIR) -I ../mocks/inc 
 
+install:
+	mkdir -p ~/.local/vds
+
 clean: 
 	@echo " RM	../$(BINDIR)/$(TARGET)/*"
 	rm -rfv ../$(BINDIR)/$(TARGET)/*

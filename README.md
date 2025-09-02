@@ -14,6 +14,27 @@ The VDS provides a complete simulation environment for:
 - **Researchers** prototyping new diagnostic features
 - **Educators** teaching automotive diagnostics
 
+## Quick start
+
+To build and install the project, navigate to the source directory and run:
+
+```bash
+make && make install
+```
+Currently make install does nothing but creation of some directories in ~/.local, later we will implement the true installation.
+
+Running the Virtual Diagnostic Server
+The server requires a virtual CAN (vcan) interface. The provided run_server script will attempt to load the necessary kernel modules and activate the vcan interface automatically.
+
+Prerequisites
+If the run_server script fails because the vcan module is not available on your system, you can install it using:
+
+```bash
+sudo apt-get install -y linux-modules-extra-$(uname -r)
+```
+
+To run the virtual diagnostic server on Windows (typically within WSL), you must first build a Linux kernel with the vcan module enabled. Follow this [guide](https://berkerturk.medium.com/creating-a-virtual-can-network-in-wsl2-7ccdf166367c) to set it up.
+
 ## ✅ Supported UDS Services
 
 | Service | Name | Status | Description |

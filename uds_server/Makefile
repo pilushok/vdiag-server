@@ -38,7 +38,7 @@ tests_dir:
 	@echo " Creating tests directory"
 	mkdir -p ../$(BINDIR)/$(TARGET)/$(TESTS_DIR)
 
-../$(BINDIR)/$(TARGET)/$(TARGET): ../$(BINDIR)/$(TARGET)/uds-server.o $(OBJS) | bin
+../$(BINDIR)/$(TARGET)/$(TARGET): ../$(BINDIR)/$(TARGET)/uds_server.o $(OBJS) | bin
 	@echo " LD	uds_server"
 	$(CC) -o $@ $^
 

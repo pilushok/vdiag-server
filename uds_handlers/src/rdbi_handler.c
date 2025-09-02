@@ -8,55 +8,7 @@
 
 #include "rdbi_handler.h"
 #include "did_map.h"
-
-#define MIN_MEM_ADDR 0x0
-#define MAX_MEM_ADDR 0xFFFF
-#define MEM_FILENAME "/home/harg/dev/virtual_ecu/bin/state/ecu.mem"
-#define MAX_DID 0xFFFF
-
-static inline uint8_t __check_range(uint32_t uaddr, uint32_t usz)
-{
-    return uaddr >= MIN_MEM_ADDR && uaddr + usz <= MAX_MEM_ADDR;
-}
-
-static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
-{
-    int32_t memfd   = open(MEM_FILENAME, O_RDONLY);
-    int32_t ireadsz = 0;
-
-    if (!pdata || usz == 0) {
-        fprintf(stderr, "Invalid parameters: pdata=%p, usz=%u\n", (void *)pdata,
-                usz);
-        return -1;
-    }
-
-    if (memfd < 0) {
-        perror("memory file");
-        return -1;
-    }
-
-    if (lseek(memfd, uaddr, SEEK_SET) < 0) {
-        perror("memory seek");
-        goto err;
-    }
-
-    ireadsz = read(memfd, pdata, usz);
-    if (ireadsz < 0) {
-        perror("memory read");
-        goto err;
-    } else if (ireadsz != usz) {
-        perror("memory read not complete");
-        goto err;
-    }
-
-    close(memfd);
-    return ireadsz;
-
-err:
-    if (memfd != -1)
-        close(memfd);
-    return -1;
-}
+#include "utils.h"
 
 EXTERNC EXPORT uds_nrc_t uds_rdbi_setup(struct uds_state   *puds,
                                         const can_message_t req,
@@ -96,7 +48,9 @@ EXTERNC EXPORT uds_nrc_t uds_rdbi_setup(struct uds_state   *puds,
     // }
 
     // Check if the memory range is valid
-    if (!__check_range(did_map->memory_address, did_map->data_size)) {
+    if (!check_memrange(puds->pecucfg->memory.start_addr,
+                        puds->pecucfg->memory.end_addr, did_map->memory_address,
+                        did_map->data_size)) {
         return NRC_REQUEST_OUT_OF_RANGE;
     }
 
@@ -126,7 +80,8 @@ EXTERNC EXPORT uds_rdbi_result_t uds_rdbi(struct uds_state       *puds,
     }
 
     // Read memory
-    res.usz = __read_memory(params.uaddr, params.usz, res.pdata);
+    res.usz = read_memory(puds->pecucfg->memory.file_path, params.uaddr,
+                          params.usz, res.pdata);
     if (res.usz < 0) {
         free(res.pdata);
         res.pdata = NULL;

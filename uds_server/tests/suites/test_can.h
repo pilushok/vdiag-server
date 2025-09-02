@@ -33,13 +33,15 @@ MU_TEST(test_can_socket_open_success)
     G_SOCKET_STATUS = SOCKET_SPEC;
     G_MOCK_SOCKFD   = 0;
     G_BIND_STATUS   = BIND_NO_ERROR;
+    G_IF_NAMETOINDEX_STATUS = IF_NAMETOINDEX_SPEC;
+    G_MOCK_IFINDEX = 0;
 
     struct socket_state *sock = can_socket_open(ifname, tx_id, rx_id, &err);
     mu_assert(sock != NULL, "TEST: socket creation failed");
     mu_assert(err == CAN_NO_ERROR, "TEST: unexpected can error on open");
     mu_assert(sock->sockfd == G_MOCK_SOCKFD, "TEST: Socket FD is set");
     mu_assert(sock->addr.can_ifindex == G_MOCK_IFINDEX,
-              "TEST: Interface index is set");
+              "TEST: Interface index is not set");
 
     G_SOCKET_STATUS = SOCKET_NO_ERROR;
     G_BIND_STATUS   = BIND_REAL;

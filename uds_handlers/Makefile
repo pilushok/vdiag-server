@@ -11,7 +11,8 @@ OBJS=../$(BINDIR)/$(TARGET_DIR)/dsc_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/tp_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/wrba_handler.o \
 		 ../$(BINDIR)/$(TARGET_DIR)/wrbi_handler.o \
-		 ../$(BINDIR)/$(TARGET_DIR)/did_map.o 
+		 ../$(BINDIR)/$(TARGET_DIR)/did_map.o \
+		 ../$(BINDIR)/$(TARGET_DIR)/utils.o 
 TESTS_DIR=tests
 TESTS_SRCDIR=src
 MOCK_OBJS=../$(BINDIR)/mocks/mock_bind.o \

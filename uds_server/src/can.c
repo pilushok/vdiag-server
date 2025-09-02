@@ -48,6 +48,7 @@ struct socket_state *can_socket_open(const char *ifname, const uint32_t utx,
 
     // TODO: here we can put support of other tp
     psock_state->sockfd = socket(PF_CAN, SOCK_DGRAM, CAN_ISOTP);
+    printf("sockfd: %d\n", psock_state->sockfd);
     if (psock_state->sockfd < 0) {
         perror("connect");
         *perr = CAN_ERROR_SOCKET_INIT;

@@ -1,59 +1,12 @@
 // #include "uds_handlers.h"
 #include "rdba_handler.h"
+#include "utils.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <uds_def.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
-
-#define MIN_MEM_ADDR 0x0
-#define MAX_MEM_ADDR 0xFFFF
-#define MEM_FILENAME "/home/harg/dev/virtual_ecu/bin/state/ecu.mem"
-
-static inline uint8_t __check_range(uint32_t uaddr, uint32_t usz)
-{
-    return uaddr >= MIN_MEM_ADDR && uaddr + usz <= MAX_MEM_ADDR;
-}
-
-static int32_t __read_memory(uint32_t uaddr, uint32_t usz, uint8_t *pdata)
-{
-    int32_t memfd   = open(MEM_FILENAME, O_RDONLY);
-    int32_t ireadsz = 0;
-
-    if (!pdata || usz == 0) {
-        fprintf(stderr, "Invalid parameters: pdata=%p, usz=%u\n", (void *)pdata,
-                usz);
-        return -1;
-    }
-
-    if (-1 == memfd) {
-        perror("memory file");
-        return -1;
-    }
-
-    if (lseek(memfd, uaddr, SEEK_SET) < 0) {
-        perror("memory seek");
-        goto err;
-    }
-
-    ireadsz = read(memfd, pdata, usz);
-    if (-1 == ireadsz) {
-        perror("memory read");
-        goto err;
-    } else if (ireadsz != usz) {
-        perror("memory read not complete");
-        goto err;
-    }
-
-    return ireadsz;
-
-err:
-    if (-1 != memfd)
-        close(memfd);
-
-    return -1;
-}
 
 EXTERNC EXPORT uds_nrc_t uds_rdba_setup(struct uds_state   *puds,
                                         const can_message_t req,
@@ -101,11 +54,12 @@ EXTERNC EXPORT uds_nrc_t uds_rdba_setup(struct uds_state   *puds,
         usz = (usz << 8) | usz_raw[i];
     }
 
-    if (!__check_range(uaddr, usz)) {
+    if (!check_memrange(puds->pecucfg->memory.start_addr,
+                        puds->pecucfg->memory.end_addr, uaddr, usz)) {
         return NRC_REQUEST_OUT_OF_RANGE;
     }
     pparams->uaddr = uaddr;
-    pparams->usz = usz;
+    pparams->usz   = usz;
 
     return NRC_POSITIVE_RESPONSE;
 }
@@ -124,18 +78,16 @@ EXTERNC EXPORT uds_rdba_result_t uds_rdba(struct uds_state       *puds,
     }
 
     // Read memory (implement your hardware-specific read)
-    res.usz = __read_memory(params.uaddr, params.usz, res.pdata);
+    res.usz = read_memory(puds->pecucfg->memory.file_path, params.uaddr, params.usz, res.pdata);
     if (res.usz < 0) {
         res.rc = NRC_CONDITIONS_NOT_CORRECT;
         return res;
     }
-    
 
     return res;
 }
 
-EXTERNC EXPORT void uds_rdba_pack(struct uds_state *puds, 
-                                  uds_rdba_result_t res,
+EXTERNC EXPORT void uds_rdba_pack(struct uds_state *puds, uds_rdba_result_t res,
                                   struct can_message *presp)
 {
     if (res.rc != NRC_POSITIVE_RESPONSE) {

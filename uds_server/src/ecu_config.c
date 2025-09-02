@@ -46,6 +46,14 @@ static int32_t handler(void *user, const char *section, const char *name,
             strncpy(config->can.protocol, value, sizeof(config->can.protocol));
         }
     }
+    
+    // UDS section
+    if (strcasecmp(section, "uds") == 0) {
+        if (strcasecmp(name, "impl") == 0) {
+            strncpy(config->uds.cimpl_libname, value,
+                    sizeof(config->uds.cimpl_libname));
+        }
+    }
 
     // Memory section
     else if (strcasecmp(section, "memory") == 0) {
@@ -73,6 +81,7 @@ static int32_t handler(void *user, const char *section, const char *name,
             }
 
             if (i == 3) {
+                config->data_identifiers[config->did_count].udid = parse_hex(name);
                 strncpy(config->did_names[config->did_count], name,
                         sizeof(config->did_names[0]));
                 config->data_identifiers[config->did_count].address =

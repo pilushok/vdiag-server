@@ -3,6 +3,7 @@
 
 #include "can.h"
 #include "uds_def.h"
+#include "ecu_config.h"
 #include <linux/can.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -72,6 +73,7 @@ typedef struct uds_state {
     idsc_t dsc;
 #endif // __DSC_DEF_H__
       
+    ecu_config_t *pecucfg;
     uint32_t client_addr;
     uint8_t  uses;
 } uds_state_t;

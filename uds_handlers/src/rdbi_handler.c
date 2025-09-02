@@ -64,7 +64,7 @@ EXTERNC EXPORT uds_nrc_t uds_rdbi_setup(struct uds_state   *puds,
 {
     uint16_t       udid;
     did_mapping_t *did_map;
-    init_mapping();
+    init_mapping(*puds->pecucfg);
 
     if (!pparams || !puds) {
         return NRC_GENERAL_REJECT;

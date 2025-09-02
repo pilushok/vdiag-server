@@ -46,14 +46,15 @@ int main(int argc, char **argv)
     uds_error_t        uds_err = UDS_ERROR_HANDLER_INIT;
     uint32_t           urx, utx;
     ecu_config_t       ecucfg;
+    int32_t            ierr;
 
     // if (argc < 4) {
     //     printf("Invalid uds_server call. Try uds_server <handlers_lib_path> "
     //            "<can_tx_id> <can_rx_id>\n");
     //     return EXIT_FAILURE;
     // }
-    int32_t perr = parse_config("configs/test.ini", &ecucfg);
-    if (perr < 0) {
+    ierr = parse_config("/home/harg/dev/virtual_ecu/bin/state/configs/test.ini", &ecucfg);
+    if (ierr < 0) {
         printf("Parse error of config\n");
     }
     print_config(&ecucfg);
@@ -61,17 +62,18 @@ int main(int argc, char **argv)
     printf(WELCOME_MESSAGE);
     // TODO: need to implement and validation of addresses
     psock_state =
-        can_socket_open(INTERFACE_NAME, atoi(argv[2]), atoi(argv[3]), &err);
+        can_socket_open(ecucfg.can.interface, ecucfg.can.tx_id, ecucfg.can.rx_id, &err);
     if (!psock_state) {
         return EXIT_FAILURE;
     }
     psock_state->uioto = CAN_TIMEOUT;
 
-    pstate = uds_init(argv[1], &uds_err);
+    pstate = uds_init(ecucfg.uds.cimpl_libname, &uds_err);
     if (!pstate) {
         printf("Unable to init uds_state ret_code: %d", uds_err);
         return EXIT_FAILURE;
     }
+    pstate->pecucfg = &ecucfg;
 
     // setup signal handler for correct shuting down
     signal(SIGINT, signal_handler);

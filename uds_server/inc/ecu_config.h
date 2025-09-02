@@ -15,6 +15,10 @@ typedef struct {
 } can_config_t;
 
 typedef struct {
+    char cimpl_libname[MAX_STRING_LENGTH];
+} uds_config_t;
+
+typedef struct {
     char     file_path[MAX_STRING_LENGTH];
     uint32_t start_addr;
     uint32_t end_addr;
@@ -22,6 +26,7 @@ typedef struct {
 
 typedef struct {
     uint32_t address;
+    uint16_t udid;
     uint16_t size;
     uint8_t  access_level;
 } data_identifiers_t;
@@ -33,6 +38,7 @@ typedef struct {
 
 typedef struct {
     can_config_t       can;
+    uds_config_t       uds;
     memory_config_t    memory;
     data_identifiers_t data_identifiers[MAX_DID_ENTRIES];
     char               did_names[MAX_DID_ENTRIES][8];

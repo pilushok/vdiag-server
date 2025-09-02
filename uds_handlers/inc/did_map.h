@@ -1,6 +1,7 @@
 #ifndef __DID_MAP_H__
 #define __DID_MAP_H__
 
+#include "ecu_config.h"
 #include <stdint.h>
 
 #define MAX_DID 0xFFFF
@@ -14,6 +15,6 @@ typedef struct {
 
 extern did_mapping_t DATA_IDENTIFIER_MAP[MAX_DID + 1];
 
-void init_mapping(void);
+void init_mapping(ecu_config_t ecucfg);
 
 #endif // __DID_MAP_H__

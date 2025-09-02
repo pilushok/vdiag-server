@@ -7,3 +7,6 @@
 [submodule "deps/minunit"]
 	path = deps/minunit
 	url = https://github.com/siu/minunit.git
+[submodule "deps/inih"]
+	path = deps/inih
+	url = https://github.com/benhoyt/inih.git

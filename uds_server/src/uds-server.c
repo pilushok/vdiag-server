@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "uds.h"
 #include "uds_def.h"
+#include "ecu_config.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -44,16 +45,23 @@ int main(int argc, char **argv)
     struct can_message req, resp;
     uds_error_t        uds_err = UDS_ERROR_HANDLER_INIT;
     uint32_t           urx, utx;
+    ecu_config_t       ecucfg;
 
-    if (argc < 4) {
-        printf("Invalid uds_server call. Try uds_server <handlers_lib_path> "
-               "<can_tx_id> <can_rx_id>\n");
-        return EXIT_FAILURE;
+    // if (argc < 4) {
+    //     printf("Invalid uds_server call. Try uds_server <handlers_lib_path> "
+    //            "<can_tx_id> <can_rx_id>\n");
+    //     return EXIT_FAILURE;
+    // }
+    int32_t perr = parse_config("configs/test.ini", &ecucfg);
+    if (perr < 0) {
+        printf("Parse error of config\n");
     }
+    print_config(&ecucfg);
 
     printf(WELCOME_MESSAGE);
     // TODO: need to implement and validation of addresses
-    psock_state = can_socket_open(INTERFACE_NAME, atoi(argv[2]), atoi(argv[3]), &err);
+    psock_state =
+        can_socket_open(INTERFACE_NAME, atoi(argv[2]), atoi(argv[3]), &err);
     if (!psock_state) {
         return EXIT_FAILURE;
     }
@@ -75,8 +83,8 @@ int main(int argc, char **argv)
         err = can_socket_read(psock_state, &req);
         if (CAN_NO_ERROR == err) {
             uds_err = uds_handle_msg(pstate, req, &resp);
-            if (uds_err == UDS_NO_ERROR) { 
-              err = can_socket_write(psock_state, &resp);
+            if (uds_err == UDS_NO_ERROR) {
+                err = can_socket_write(psock_state, &resp);
             }
         }
 

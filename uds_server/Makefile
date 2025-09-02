@@ -3,7 +3,9 @@ TARGET_DIR=uds_server
 INCDIR=inc
 SRCDIR=src
 OBJS=../$(BINDIR)/$(TARGET)/can.o \
-		 ../$(BINDIR)/$(TARGET)/uds.o
+		 ../$(BINDIR)/$(TARGET)/ecu_config.o \
+		 ../$(BINDIR)/$(TARGET)/uds.o \
+		 ../$(BINDIR)/$(TARGET)/ini.o
 TESTS_DIR=tests
 TESTS_SRCDIR=src
 MOCK_OBJS=../$(BINDIR)/mocks/mock_bind.o \
@@ -42,7 +44,11 @@ tests_dir:
 
 ../$(BINDIR)/$(TARGET)/%.o: $(SRCDIR)/%.c | bin
 	@echo " CC	$@"
-	$(CC) -c $< -o $@ -I $(INCDIR)
+	$(CC) -c $< -o $@ -I $(INCDIR) -I ../deps/
+
+../$(BINDIR)/$(TARGET)/ini.o: ../deps/inih/ini.c | bin
+	@echo " CC	$@"
+	$(CC) -c $< -o $@ -I $(INCDIR) -I ../deps/
 
 ../$(BINDIR)/$(TARGET_DIR)/$(TESTS_DIR)/%.o: $(TESTS_DIR)/$(TESTS_SRCDIR)/%.c | tests_dir
 	@echo " CC	$@"

@@ -5,7 +5,7 @@ SRCDIR=src
 OBJS=../$(BINDIR)/$(TARGET)/can.o \
 		 ../$(BINDIR)/$(TARGET)/ecu_config.o \
 		 ../$(BINDIR)/$(TARGET)/uds.o \
-		 ../$(BINDIR)/$(TARGET)/ini.o
+		 ../$(BINDIR)/$(TARGET)/ini.o 
 TESTS_DIR=tests
 TESTS_SRCDIR=src
 MOCK_OBJS=../$(BINDIR)/mocks/mock_bind.o \

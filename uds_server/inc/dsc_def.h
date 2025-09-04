@@ -18,26 +18,39 @@ typedef struct __dsc_params {
 
 typedef struct {
     uds_nrc_t rc;
-    uint8_t uses;
-    uint16_t p2_server_max;
-    uint16_t p2_star_server_max;
+    uint8_t   uses;
+    uint16_t  p2_server_max;
+    uint16_t  p2_star_server_max;
 } uds_dsc_result_t;
 
-typedef uds_nrc_t (*puds_dsc_setup_t)(uds_state_t *puds,
+typedef uds_nrc_t (*puds_dsc_setup_t)(uds_state_t             *puds,
                                       const struct can_message req,
-                                      uds_dsc_params_t *pparams);
+                                      uds_dsc_params_t        *pparams);
 
-typedef uds_dsc_result_t (*puds_dsc_t)(uds_state_t *puds,
+typedef uds_dsc_result_t (*puds_dsc_t)(uds_state_t           *puds,
                                        const uds_dsc_params_t params);
 
-typedef void (*puds_dsc_pack_t)(uds_state_t *puds,
-                                const uds_dsc_result_t res,
+typedef void (*puds_dsc_pack_t)(uds_state_t *puds, const uds_dsc_result_t res,
                                 struct can_message *presp);
+
+static inline void handle_dsc_service(uds_state_t *puds, const can_message_t req,
+                               can_message_t *presp, puds_dsc_setup_t psetup,
+                               puds_dsc_t pcall, puds_dsc_pack_t ppack)
+{
+    uds_dsc_params_t dsc_param;
+    uds_dsc_result_t dsc_res;
+
+    dsc_res.rc = psetup(puds, req, &dsc_param);
+    if (dsc_res.rc == NRC_POSITIVE_RESPONSE) {
+        dsc_res = pcall(puds, dsc_param);
+    }
+    ppack(puds, dsc_res, presp);
+}
 
 typedef struct __interface_dsc {
     puds_dsc_setup_t setup;
-    puds_dsc_t call;
-    puds_dsc_pack_t pack;
+    puds_dsc_t       call;
+    puds_dsc_pack_t  pack;
 } idsc_t;
 
 #endif // __DSC_DEF_H__

@@ -44,7 +44,7 @@
 
 #define INIT_UDS_HANDLER(puds, impl, handler)   \
     INIT_UDS_HANDLER_SETUP(puds, impl, handler) \
-    INIT_UDS_HANDLER_CALL(puds, impl, handler) \
+    INIT_UDS_HANDLER_CALL(puds, impl, handler)  \
     INIT_UDS_HANDLER_PACK(puds, impl, handler)
 
 typedef struct uds_state {
@@ -72,10 +72,10 @@ typedef struct uds_state {
 #ifdef __DSC_DEF_H__
     idsc_t dsc;
 #endif // __DSC_DEF_H__
-      
+
     ecu_config_t *pecucfg;
-    uint32_t client_addr;
-    uint8_t  uses;
+    uint32_t      client_addr;
+    uint8_t       uses;
 } uds_state_t;
 
 uds_state_t *uds_init(const char *handlers_lib, uds_error_t *perr);
